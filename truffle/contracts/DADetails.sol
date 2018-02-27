@@ -10,6 +10,13 @@ contract DADetails {
         address uploadedBy;
     }
 
+    struct EventLog {
+        uint date;
+        string party;
+        string description;
+        string ipfsHash;
+    }
+
     // EVENTS
     event StateChanged();
     // ... all the state changes ...
@@ -24,9 +31,15 @@ contract DADetails {
     string public description;
     uint public estimatedCost;
     string public lga;
-    // status: DALodged, DApproval
+    enum status {
+            DALodged, DAApproved, UtilityApproval,
+            CCLodged, CCApproved,
+            SCLodged, SCApproved, Registered
+        }
+    mapping (string => uint) actionStatus;
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
+    EventLog[] public eventLogs;
 
     // statechangedevents[]
 
@@ -41,8 +54,14 @@ contract DADetails {
 
     // METHODS
 
+    // change the states
+    function stateChange(string state) public {
+        actionStatus[state] = now;
+        StateChanged();
+    }
+
     // get the hash of all the geographic files associated with this contract
-    function getGeoFiles() public view returns(string) {
+    function getGeoFiles() public view returns (string) {
         return "[]";
     }
 
@@ -106,6 +125,15 @@ contract DADetails {
     function getUploadedBy(string fileName) public view returns(address) {
         var attachment = attachments[fileName];
         return attachment.uploadedBy;
+    }
+
+    function addEventLog(string party, string description, string ipfsHash) public {
+        EventLog eventLog;
+        eventLog.date = now;
+        eventLog.party = party;
+        eventLog.description = description;
+        eventLog.ipfsHash = ipfsHash;
+        eventLogs.push(eventLog);
     }
 
 }
