@@ -23,7 +23,7 @@ contract DADetails {
 
 
     // CONSTRUCTOR
-    function DADetails (uint _dateLodged, string _description, string _lga) public {
+    function DADetails (uint256 _dateLodged, string _description, string _lga) public {
         applicant = msg.sender;
         dateLodged = _dateLodged;
         description = _description;
