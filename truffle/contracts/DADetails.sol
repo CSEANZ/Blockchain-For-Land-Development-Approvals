@@ -31,12 +31,7 @@ contract DADetails {
     string public description;
     uint public estimatedCost;
     string public lga;
-    enum status {
-            DALodged, DAApproved, UtilityApproval,
-            CCLodged, CCApproved,
-            SCLodged, SCApproved, Registered
-        }
-    mapping (string => uint) actionStatus;
+
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
     EventLog[] public eventLogs;
@@ -53,13 +48,7 @@ contract DADetails {
     }
 
     // METHODS
-
-    // change the states
-    function stateChange(string state) public {
-        actionStatus[state] = now;
-        StateChanged();
-    }
-
+    
     // get the hash of all the geographic files associated with this contract
     function getGeoFiles() public view returns (string) {
         return "[]";

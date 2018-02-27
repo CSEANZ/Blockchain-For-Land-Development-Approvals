@@ -66,6 +66,29 @@ contract('DADetails', function (accounts) {
   
   });
 
+  it("should change add event logs and print the logs", async () => {
+    var dateLodged = "123456";
+    var description = "UniTest for event logs";
+    var lga ="BCC";
+
+    var daDetails = await DADetails.new(dateLodged, description, lga);
+    daDetails.addEventLog("abc", "abc", "abcdc");
+    daDetails.addEventLog("efg", "efg", "efgsfa");
+
+    var eventLogs = daDetails.getEventLogs();
+    for (var eventLog in eventLogs){
+      console.log("Date:");
+      console.log(await eventLog.date);
+
+      console.log("Party:");
+      console.log(await eventLog.party);
+
+      console.log("description:");
+      console.log(await eventLog.description);
+    }
+    
+  })
+
   // 
 
 //   it("should call a function that depends on a linked library", async () => {
