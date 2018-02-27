@@ -73,21 +73,20 @@ contract('DADetails', function (accounts) {
 
     var daDetails = await DADetails.new(dateLodged, description, lga);
     daDetails.addEventLog("abc", "abc", "abcdc");
+
+    var eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("1st EVENTNUMBER:");
+    console.log(eventLogsNumber);
+
     daDetails.addEventLog("efg", "efg", "efgsfa");
-
-    var eventLogs = daDetails.getEventLogs();
-    for (var eventLog in eventLogs){
-      console.log("Date:");
-      console.log(await eventLog.date);
-
-      console.log("Party:");
-      console.log(await eventLog.party);
-
-      console.log("description:");
-      console.log(await eventLog.description);
-    }
+    daDetails.addEventLog("efg", "efg", "efgsfa");
     
-  })
+    eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("2nd EVENTNUMBER:");
+    console.log(eventLogsNumber);
+    });
 
   // 
 

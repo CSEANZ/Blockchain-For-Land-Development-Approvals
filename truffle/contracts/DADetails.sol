@@ -48,7 +48,7 @@ contract DADetails {
     }
 
     // METHODS
-    
+
     // get the hash of all the geographic files associated with this contract
     function getGeoFiles() public view returns (string) {
         return "[]";
@@ -123,6 +123,10 @@ contract DADetails {
         eventLog.description = description;
         eventLog.ipfsHash = ipfsHash;
         eventLogs.push(eventLog);
+    }
+
+    function getEventLogsNumber() public view returns (uint256) {
+        return eventLogs.length;
     }
 
 }
