@@ -21,6 +21,32 @@ contract('DADetails', function (accounts) {
     assert.equal(retrivedLga.valueOf(), lga, "lga isn't the same");
   });
 
+  it("should return a list of the geographic files in the contract", async() => {
+
+    var dateLodged = "123456";
+    var description = "Test geographic file types";
+    var lga ="BCC";
+
+    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var fileName = "nongeographicfile.pdf";
+    var fileType = "conditions";
+    var uploadedBy = 0x123;
+    var ipfsHash = "Hash1";
+
+    daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
+
+    var fileCount = await daDetails.getFileNamesCount();
+    console.log(fileCount);
+
+    for (let f = 0; f < fileCount; f++) {
+      console.log(await daDetails.getFileName(f));
+    }
+
+    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
+
+    
+  });
+
   // 
 
 //   it("should call a function that depends on a linked library", async () => {
