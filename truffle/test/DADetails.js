@@ -5,11 +5,12 @@ contract('DADetails', function (accounts) {
 
     // arrange
     var dateLodged = "12334567";
+    var daId = "DAID";
     var description = "hello";
     var lga = "BCC";
 
     // act
-    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
 
     var retrivedDateLodged = await daDetails.dateLodged();
     var retrivedDescription = await daDetails.description();
@@ -23,11 +24,12 @@ contract('DADetails', function (accounts) {
 
   it("should return a list of the geographic files in the contract", async() => {
 
+    var daId = "DAID";
     var dateLodged = "123456";
     var description = "Test geographic file types";
     var lga ="BCC";
 
-    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
     var fileName = "nongeographicfile.pdf";
     var fileType = "conditions";
     var uploadedBy = 0x123;
