@@ -21,6 +21,51 @@ contract('DADetails', function (accounts) {
     assert.equal(retrivedLga.valueOf(), lga, "lga isn't the same");
   });
 
+  it("should return a list of the geographic files in the contract", async() => {
+
+    var dateLodged = "123456";
+    var description = "Test geographic file types";
+    var lga ="BCC";
+
+    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var fileName = "nongeographicfile.pdf";
+    var fileType = "conditions";
+    var uploadedBy = 0x123;
+    var ipfsHash = "Hash1";
+
+    daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
+
+    var fileCount = await daDetails.getFileNamesCount();
+    console.log(fileCount);
+
+    for (let f = 0; f < fileCount; f++) {
+      console.log(await daDetails.getFileName(f));
+    }
+
+    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
+
+    console.log("version count for nongeographicfile.pdf");
+    var versionCount = await daDetails.getAttachmentVersionCount(fileName);
+    console.log(versionCount);
+
+    console.log("latest version hash");
+    console.log(await daDetails.getLatestIpfsHash(fileName));
+
+    console.log("all ipfs hashes:");
+
+    for (let v = 0; v < versionCount; v++) {
+      console.log(v);
+      console.log(await daDetails.getAttachmentVersionByIndex(fileName, v));
+    }
+
+    console.log("file type:");
+    console.log(await daDetails.getFileType(fileName));
+
+    console.log("uploaded by:");
+    console.log(await daDetails.getUploadedBy(fileName));
+  
+  });
+
   // 
 
 //   it("should call a function that depends on a linked library", async () => {
