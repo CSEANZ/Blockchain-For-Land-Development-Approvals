@@ -69,5 +69,43 @@ contract DADetails {
         return fileNames[index];
     }
 
+    function getFileType(string fileName) public view returns(string) {
+        var attachment = attachments[fileName];
+        return attachment.fileType;
+    } 
+
+    function getLatestIpfsHash(string fileName) public view returns(string) {
+        var attachment = attachments[fileName];
+        if (attachment.uploadedBy == 0x00) {
+            return "";
+        } else {
+            return attachment.ipfsHash[attachment.ipfsHash.length - 1];
+        }
+    }
+
+    function getAttachmentVersionCount(string fileName) public view returns(uint256) {
+        var attachment = attachments[fileName];
+        if (attachment.uploadedBy == 0x00) {
+            return 0;
+        } else {
+            return attachment.ipfsHash.length;
+        }
+    }
+
+    function getAttachmentVersionByIndex(string fileName, uint256 index) public view returns(string) {
+        var attachment = attachments[fileName];
+        if (attachment.uploadedBy == 0x00) {
+            return "";
+        } else if (attachment.ipfsHash.length < index + 1) {
+            return "";
+        } else {
+            return attachment.ipfsHash[index];
+        }
+    }
+
+    function getUploadedBy(string fileName) public view returns(address) {
+        var attachment = attachments[fileName];
+        return attachment.uploadedBy;
+    }
 
 }

@@ -44,7 +44,26 @@ contract('DADetails', function (accounts) {
 
     daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
 
-    
+    console.log("version count for nongeographicfile.pdf");
+    var versionCount = await daDetails.getAttachmentVersionCount(fileName);
+    console.log(versionCount);
+
+    console.log("latest version hash");
+    console.log(await daDetails.getLatestIpfsHash(fileName));
+
+    console.log("all ipfs hashes:");
+
+    for (let v = 0; v < versionCount; v++) {
+      console.log(v);
+      console.log(await daDetails.getAttachmentVersionByIndex(fileName, v));
+    }
+
+    console.log("file type:");
+    console.log(await daDetails.getFileType(fileName));
+
+    console.log("uploaded by:");
+    console.log(await daDetails.getUploadedBy(fileName));
+  
   });
 
   // 
