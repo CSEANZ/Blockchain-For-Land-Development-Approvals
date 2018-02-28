@@ -10,6 +10,13 @@ contract DADetails {
         address uploadedBy;
     }
 
+    struct EventLog {
+        uint date;
+        string party;
+        string description;
+        string ipfsHash;
+    }
+
     // EVENTS
     event StateChanged();
     // ... all the state changes ...
@@ -27,6 +34,7 @@ contract DADetails {
     // status: DALodged, DApproval
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
+    EventLog[] public eventLogs;
 
     // statechangedevents[]
 
@@ -107,5 +115,18 @@ contract DADetails {
     function getUploadedBy(string fileName) public view returns(address) {
         var attachment = attachments[fileName];
         return attachment.uploadedBy;
+    }
+
+    function addEventLog(string party, string description, string ipfsHash) public {
+        EventLog eventLog;
+        eventLog.date = now;
+        eventLog.party = party;
+        eventLog.description = description;
+        eventLog.ipfsHash = ipfsHash;
+        eventLogs.push(eventLog);
+    }
+
+    function getEventLogsNumber() public view returns (uint256) {
+        return eventLogs.length;
     }
 }

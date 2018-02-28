@@ -92,6 +92,29 @@ contract('DADetails', function (accounts) {
   
   });
 
+  it("should change add event logs and print the logs", async () => {
+    var daId = "DAID";
+    var dateLodged = "123456";
+    var description = "Test geographic file types";
+    var lga ="BCC";
+
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
+    daDetails.addEventLog("abc", "abc", "abcdc");
+
+    var eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("1st EVENTNUMBER:");
+    console.log(eventLogsNumber);
+
+    daDetails.addEventLog("efg", "efg", "efgsfa");
+    daDetails.addEventLog("efg", "efg", "efgsfa");
+    
+    eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("2nd EVENTNUMBER:");
+    console.log(eventLogsNumber);
+    });
+
   // 
 
 //   it("should call a function that depends on a linked library", async () => {
