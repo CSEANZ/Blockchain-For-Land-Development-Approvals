@@ -31,7 +31,7 @@ contract DADetails {
     string public description;
     uint public estimatedCost;
     string public lga;
-
+    // status: DALodged, DApproval
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
     EventLog[] public eventLogs;
@@ -40,8 +40,9 @@ contract DADetails {
 
 
     // CONSTRUCTOR
-    function DADetails (uint _dateLodged, string _description, string _lga) public {
+    function DADetails (string _daId, uint _dateLodged, string _description, string _lga) public {
         applicant = msg.sender;
+        daid = _daId;
         dateLodged = _dateLodged;
         description = _description;
         lga = _lga;
@@ -50,7 +51,7 @@ contract DADetails {
     // METHODS
 
     // get the hash of all the geographic files associated with this contract
-    function getGeoFiles() public view returns (string) {
+    function getGeoFiles() public view returns(string) {
         return "[]";
     }
 
@@ -128,5 +129,4 @@ contract DADetails {
     function getEventLogsNumber() public view returns (uint256) {
         return eventLogs.length;
     }
-
 }
