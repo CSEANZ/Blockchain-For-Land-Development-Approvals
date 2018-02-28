@@ -41,7 +41,7 @@ contract DADetails {
     mapping (string => EventLog) eventLogs;
 
     // contract states
-    enum ContractStates {stateInitialized, DALodged, DaApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
+    enum ContractStates {stateInitialized, DALodged, DAApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
     ContractStates public State;
 
 
@@ -89,7 +89,7 @@ contract DADetails {
 		require(State == ContractStates.DALodged);
 		
 		if(DAApproveResult) {
-			StateChanged(ContractStates.DaApproved);
+			StateChanged(ContractStates.DAApproved);
 		} else {
 			StateChanged(ContractStates.DALodged);
 		}
@@ -98,7 +98,7 @@ contract DADetails {
 
     // function changes the state to construction (CC) lodged if current contract state is DAApproved approved
     function CCLodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {      
-        require(State == ContractStates.DaApproved);
+        require(State == ContractStates.DAApproved);
        
         applicant = msg.sender;
         daid = _daid;
