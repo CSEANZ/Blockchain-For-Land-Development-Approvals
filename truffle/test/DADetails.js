@@ -1,6 +1,7 @@
 var DADetails = artifacts.require("./DADetails.sol");
 
 contract('DADetails', function (accounts) {
+
   it("should construct a new instance", async () => {
 
     // arrange
@@ -21,7 +22,7 @@ contract('DADetails', function (accounts) {
     assert.equal(retrivedDescription.valueOf(), description, "description isn't the same");
     assert.equal(retrivedLga.valueOf(), lga, "lga isn't the same");
   });
-
+/*
   it("should return a list of the geographic files in the contract", async() => {
 
     var daId = "DAID";
@@ -88,10 +89,10 @@ contract('DADetails', function (accounts) {
         console.log(await daDetails.getLatestIpfsHash(theFileName));
       }
     }
-
   
   });
-
+  */
+ 
   it("should change add event logs and print the logs", async () => {
     var daId = "DAID";
     var dateLodged = "123456";
@@ -99,23 +100,25 @@ contract('DADetails', function (accounts) {
     var lga ="BCC";
 
     var daDetails = await DADetails.new(daId, dateLodged, description, lga);
-    daDetails.addEventLog("abc", "abc", "abcdc");
-
-    var eventLogsNumber = await daDetails.getEventLogsNumber();
-
-    console.log("1st EVENTNUMBER:");
-    console.log(eventLogsNumber);
-
-    daDetails.addEventLog("efg", "efg", "efgsfa");
-    daDetails.addEventLog("efg", "efg", "efgsfa");
+    daDetails.addEventLog("1111", "abc", "abc", "abcdc");
+    daDetails.addEventLog("2222", "efg", "efg", "efgsfa");
+    daDetails.addEventLog("3333", "efg", "efg", "efgsfa");
     
-    eventLogsNumber = await daDetails.getEventLogsNumber();
-
-    console.log("2nd EVENTNUMBER:");
-    console.log(eventLogsNumber);
+    //console.log("2nd EVENTNUMBER:");
+    //console.log(await daDetails.getEventLogsCount());
+    
+    var eventLogCount = await daDetails.getEventLogsCount();
+    console.log("EventLogCount");
+    console.log(eventLogCount);
+    
+    for (let f = 0; f < eventLogCount; f++) {
+      var EventLogId = await daDetails.getEventLogId(f);
+      console.log(EventLogId);
+    }
+    
     });
 
-  
+  /*
      it("should change the contract state to DA Lodged)", async () => {
        // arrange
        var dateLodged = 12334567;
@@ -133,7 +136,7 @@ contract('DADetails', function (accounts) {
 
 
      });
-
+*/
 
 
 

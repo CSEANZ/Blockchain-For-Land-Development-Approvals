@@ -11,6 +11,7 @@ contract DADetails {
     }
 
     struct EventLog {
+        //string id;
         uint date;
         string party;
         string description;
@@ -35,7 +36,9 @@ contract DADetails {
     // status: DALodged, DApproval
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
-    EventLog[] public eventLogs;
+
+    string[] public eventLogIds;
+    mapping (string => EventLog) eventLogs;
 
     // contract states
     enum ContractStates {stateInitialized, DALodged, DaApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
@@ -241,16 +244,27 @@ contract DADetails {
         return attachment.uploadedBy;
     }
 
-    function addEventLog(string party, string description, string ipfsHash) public {
+    function addEventLog(string eventLogId, string party, string description, string ipfsHash) public returns (bool) {
         EventLog eventLog;
+        eventLogIds.push(eventLogId);
+        //eventLog.id = eventLogId;
         eventLog.date = now;
         eventLog.party = party;
         eventLog.description = description;
         eventLog.ipfsHash = ipfsHash;
-        eventLogs.push(eventLog);
+        eventLogs[eventLogId] = eventLog;
+        return true;
     }
 
-    function getEventLogsNumber() public view returns (uint256) {
-        return eventLogs.length;
+    function getEventLogById(string eventLogId) public view returns(EventLog) {
+        return eventLogs[eventLogId];
+    }
+
+    function getEventLogId(uint256 index) public view returns(string) {
+        return eventLogIds[index];
+    }
+
+    function getEventLogsCount() public view returns (uint256) {
+        return eventLogIds.length;
     }
 }
