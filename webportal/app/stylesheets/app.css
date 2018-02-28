@@ -18,6 +18,14 @@ input {
   font-size: 16px;
 }
 
+input[readonly]{
+  background-color:transparent;
+  border: 0;
+  width: 500px;
+  padding: 5px;
+  font-size: 16px;
+}
+
 button {
   font-size: 16px;
   padding: 5px;

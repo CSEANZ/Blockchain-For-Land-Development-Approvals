@@ -108,5 +108,4 @@ contract DADetails {
         var attachment = attachments[fileName];
         return attachment.uploadedBy;
     }
-
 }
