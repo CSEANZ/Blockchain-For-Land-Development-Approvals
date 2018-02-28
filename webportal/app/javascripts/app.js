@@ -16,8 +16,86 @@ var accounts;
 var account;
 
 window.App = {
+
+  uploadFile: function (file, el) {
+    fileType = file.type;
+    fileName = file.name;
+    var that = this;
+    var reader = new FileReader();
+    reader.onloadend = function () {
+      const ipfs = window.IpfsApi('ipfs-upload.westus2.cloudapp.azure.com', 5001) // Connect to IPFS
+      const buf = buffer.Buffer(reader.result) // Convert data into buffer
+      ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
+        if (err) {
+          console.error(err);
+          return 0;
+        }
+        let url = `https://ipfs.io/ipfs/${result[0].hash}`;
+        el.html('Uploaded');
+        el.prop('disabled', true);
+        el.parent().siblings().eq(0).prop('disabled', true);
+        el.removeClass('btn-outline-secondary').addClass('btn-success');
+        el.parent().parent().siblings().eq(1).remove();
+
+        localforage.getItem('myStorage').then(function (value) {
+          if (value === null) {
+            let obj = {
+              fileName: fileName,
+              url: url,
+              fileType: fileType
+            };
+            let temp = [];
+            temp.push(obj);
+            localforage.setItem('myStorage', temp).then(function (value) {
+              console.log(value[0]);
+            }).catch(function (err) {
+              console.log(err);
+            });
+          } else {
+            let temp = value;
+            let obj = {
+              fileName: fileName,
+              url: url,
+              fileType: fileType
+            };
+            temp.push(obj);
+            localforage.setItem('myStorage', temp).then(function (value) {
+              console.log(value);
+            }).catch(function (err) {
+              console.log(err);
+            });
+          }
+        }).catch(function (err) {
+          console.log(err);
+        });
+
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  },
+
+  attchmentField: '<div class="form-group"><label for="attachments">Attachment</label> <a href="javascript:void(0)" class="remove-attachment small">remove</a><div class="input-group mb-3"><input type="file" class="form-control" placeholder="Attachment" name="attachments[]"><div class="input-group-append"><button class="btn btn-outline-secondary upload-attachment" type="button">Upload</button></div></div></div>',
+
+  attachEvents: function () {
+    var that = this;
+
+    $$(document).on('click', '.upload-attachment', function (e) {
+      that.uploadFile($$(this).parent().siblings()[0].files[0], $$(this));
+    });
+
+    $$(document).on('click', '.remove-attachment', function (e) {
+      $$(this).parent().remove();
+    });
+
+    $$('#add-new-attachments').on('click', function (e) {
+      $$('#attachments').append(that.attchmentField);
+    });
+  },
+
   start: function () {
     var self = this;
+
+    this.attachEvents();
 
     DaRegister.setProvider(web3.currentProvider);
     DaDetails.setProvider(web3.currentProvider);
@@ -40,29 +118,6 @@ window.App = {
     });
   },
 
-  uploadFiles: function () {
-    console.log("Uploading Files");
-    reader.onloadend = function () {
-      const ipfs = window.IpfsApi('52.237.243.236', 5001) // Connect to IPFS
-      const buf = buffer.Buffer(reader.result) // Convert data into buffer
-      ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
-        if (err) {
-          console.error(err)
-          return
-        }
-        let url = `https://ipfs.io/ipfs/${result[0].hash}`
-        console.log(`Url --> ${url}`)
-        counter++
-
-        const photo = document.getElementById("attachments");
-        if (counter > photo.files.length - 1) return;
-        reader.readAsArrayBuffer(photo.files[counter]);
-      });
-    }
-    const photo = document.getElementById("attachments");
-    reader.readAsArrayBuffer(photo.files[0]); // Read Provided File    
-  },
-
   getDARegisterAddress: function () {
     var self = this;
 
@@ -71,7 +126,7 @@ window.App = {
     DaRegister.deployed()
       .then(function (instance) {
         daRegister = instance;
-        return daRegister.getDARegisterAddress.call(daid, { from: account });
+        return daRegister.getDADetailsAddress.call(daid, { from: account });
       })
       .then(function (value) {
         var address = value.valueOf();
@@ -83,7 +138,7 @@ window.App = {
             document.getElementById("daid").value = daid;
           });
           details.dateLodged().then(function (dateLodged) {
-            document.getElementById("dateLodged").value = new Date(dateLodged*1000).toLocaleDateString();
+            document.getElementById("dateLodged").value = new Date(dateLodged * 1000).toLocaleDateString();
           });
           details.description().then(function (desc) {
             document.getElementById("description").value = desc;
@@ -91,7 +146,7 @@ window.App = {
           details.lga().then(function (lga) {
             document.getElementById("lga").value = lga;
           });
-          
+
         });
       }).catch(function (e) {
         console.log(e);
@@ -109,8 +164,8 @@ window.App = {
     let dateLodgedInUnixTimestamp = date / 1000;
     var lga = document.getElementById("lga").value;
 
-    this.setStatus("Uploading files... (please wait)");
-    // this.uploadFiles(); // upload all files by Sarthak Dabhi
+
+
 
     this.setStatus("Initiating transaction... (please wait)");
 
@@ -125,6 +180,93 @@ window.App = {
       console.log(e);
       self.setStatus("Error creating DA");
     });
+  },
+
+  approveDA: function () {
+    var self = this;
+    var daid = document.getElementById("daid").value;
+    var description = document.getElementById("description").value;
+    var dateLodged = document.getElementById("dateLodged").value;
+    let lodgedDate = (new Date(dateLodged)).getTime();
+    let dateLodgedInUnixTimestamp = date / 1000;
+
+    var lga = document.getElementById("lga").value;
+    var states = document.getElementById("states").value;
+    var status = states.options[states.selectedIndex].value;
+    var estimatedcost = document.getElementById("ecost").value;
+
+    var dateApproved = document.getElementById("dateApproved").value;
+    let approvedDate = (new Date(dateApproved)).getTime();
+    let dateApprovedInUnixTimestamp = date / 1000;
+    var applicant;
+
+
+    this.setStatus("Initiating transaction... (please wait)");
+
+    var daid = document.getElementById("searchdaid").value;
+    var daRegister;
+    DaRegister.deployed()
+      .then(function (instance) {
+        daRegister = instance;
+        return daRegister.getDADetailsAddress.call(daid, { from: account });
+      })
+      .then(function (value) {
+        var address = value.valueOf();
+        return DaDetails.at(address).then(function (details) {
+
+          switch (status) {
+            case "DALodge":
+              return details.DALodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
+                estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
+                .then(function () {
+                  self.setStatus("DALodge Transaction complete!");
+                }).catch(function (e) {
+                  console.log(e);
+                  self.setStatus("Error creating DALodge");
+                });
+              break;
+            case "CCLodge":
+              return details.CCLodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
+                estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
+                .then(function () {
+                  self.setStatus("CCLodge Transaction complete!");
+                }).catch(function (e) {
+                  console.log(e);
+                  self.setStatus("Error creating CCLodge");
+                });
+              break;
+            case "SCLodge":
+              return details.SCLodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
+                estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
+                .then(function () {
+                  self.setStatus("SCLodge Transaction complete!");
+                }).catch(function (e) {
+                  console.log(e);
+                  self.setStatus("Error creating SCLodge");
+                });
+              break;
+            case "PlanLodge":
+              return details.PlanApprove(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
+                estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
+                .then(function () {
+                  self.setStatus("PlanLodge Transaction complete!");
+                }).catch(function (e) {
+                  console.log(e);
+                  self.setStatus("Error creating PlanLodge");
+                });
+              break;
+            default:
+              {
+                console.log("Error status not implimented.");
+                self.setStatus("Error status not implimented.");
+              }
+          }
+
+        });
+      }).catch(function (e) {
+        console.log(e);
+        self.setStatus("Error getting da; see log.");
+      });
   },
 
   setStatus: function (message) {
