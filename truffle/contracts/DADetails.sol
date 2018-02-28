@@ -18,7 +18,7 @@ contract DADetails {
     }
 
     // EVENTS
-    event StateChanged();
+    event StateChanged(ContractStates newState);
     // ... all the state changes ...
 
 
@@ -26,6 +26,7 @@ contract DADetails {
     address public applicant;
     string public daid;
     uint public dateLodged;
+    uint public dateApproved;
     //...
     // parcels {LotId, SectionId, PlanId, PlanType};
     string public description;
@@ -35,6 +36,11 @@ contract DADetails {
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
     EventLog[] public eventLogs;
+
+    // contract states
+    enum ContractStates {stateInitialized, DALodged, DaApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
+    ContractStates public State;
+
 
     // statechangedevents[]
 
@@ -49,6 +55,124 @@ contract DADetails {
     }
 
     // METHODS
+    
+    // function change the state
+	function ChangeState(ContractStates newState) public {
+		State = newState;
+		StateChanged(newState);
+	}
+
+   // function returns the current state 
+    function getCurrentState() public view returns (ContractStates) {
+       return State;
+    }
+
+
+    // function changes the state to DA lodged 
+    function DALodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
+        applicant = msg.sender;
+        daid = _daid;
+        dateLodged = _dateLodged;
+        description = _description;
+        lga = _lga;
+        estimatedCost = _estimatedcost;
+        dateApproved = _dateApproved;
+        ChangeState(ContractStates.DALodged);
+    }
+
+
+    // function changes the state to DA Approved if current contract state is DA Lodged
+    function DAApprove(bool DAApproveResult) public returns (bool) {
+		require(State == ContractStates.DALodged);
+		
+		if(DAApproveResult) {
+			StateChanged(ContractStates.DaApproved);
+		} else {
+			StateChanged(ContractStates.DALodged);
+		}
+	return true;
+	}
+
+    // function changes the state to construction (CC) lodged if current contract state is DAApproved approved
+    function CCLodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {      
+        require(State == ContractStates.DaApproved);
+       
+        applicant = msg.sender;
+        daid = _daid;
+        dateLodged = _dateLodged;
+        description = _description;
+        lga = _lga;
+        estimatedCost = _estimatedcost;
+        dateApproved = _dateApproved;
+        ChangeState(ContractStates.CCLodged);
+    }
+
+
+    // function changes the state to construction (CC) approved if current contract state is construction (CC) lodged
+    function CCApprove(bool CCApproveResult) public returns (bool) {
+		require(State == ContractStates.CCLodged);
+		
+		if(CCApproveResult) {
+			StateChanged(ContractStates.CCApproved);
+		} else {
+			StateChanged(ContractStates.CCLodged);
+		}
+	return true;
+	}
+
+
+    // function changes the state to sub division (SC) lodged if current contract state is construction (CC) approved
+     function SCLodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
+        require(State == ContractStates.CCApproved);
+        applicant = msg.sender;
+        daid = _daid;
+        dateLodged = _dateLodged;
+        description = _description;
+        lga = _lga;
+        estimatedCost = _estimatedcost;
+        dateApproved = _dateApproved;
+        ChangeState(ContractStates.SCLodged);
+    }
+
+   // function changes the state to sub division (SC) approved if current contract state is sub division (SC) lodged
+    function SCApprove(bool SCApproveResult) public returns (bool) {
+		require(State == ContractStates.SCLodged);
+		
+		if(SCApproveResult) {
+			StateChanged(ContractStates.SCApproved);
+		} else {
+			StateChanged(ContractStates.SCLodged);
+		}
+	return true;
+	}
+
+
+    // function changes the state to Plan lodged if current contract state is sub divison approved
+     function PlanApprove (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
+        require(State == ContractStates.SCApproved);
+
+        applicant = msg.sender;
+        daid = _daid;
+        dateLodged = _dateLodged;
+        description = _description;
+        lga = _lga;
+        estimatedCost = _estimatedcost;
+        dateApproved = _dateApproved;
+        StateChanged(ContractStates.PlanLodged);
+    }
+
+    // function changes the state to PlanRegistered if current contract state is Plan Lodged
+     function PlanRegister(bool PlanRegisteredResult) public returns (bool) {
+		require(State == ContractStates.PlanLodged);
+		
+		if (PlanRegisteredResult) {
+			StateChanged(ContractStates.PlanRegistered);
+		} else {
+			StateChanged(ContractStates.PlanLodged);
+		}
+	return true;
+	}
+
 
     // get the hash of all the geographic files associated with this contract
     function getGeoFiles() public view returns(string) {
