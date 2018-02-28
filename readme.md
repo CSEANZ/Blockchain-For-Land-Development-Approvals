@@ -1,6 +1,6 @@
 # Blockchain for Land Development
 
-Artefacts from a hack done with the NSW Land Titles Office, the CRC for Spatial Information and CSE
+Artefacts from a hack done with the NSW DFSI Spatial Services, the CRC for Spatial Information and Microsoft Commercial Software Engineering (ANZ). 
 
 ## Overview/Problem Statement
 
@@ -19,7 +19,7 @@ The process for lodging a (property) development application in NSW varies from 
 
 ![Proposed Workflow][workflowdiagram]
 
-## Property DA approval process on Blockchain
+## Proposed property DA approval process on Blockchain
 ### Plan phase  
 1. Property Developer submits DA in submission web portal 
 1. Smart contract deployed to Azure Ethereum Network that represents the specific DA and forms/other relevant documents uploaded to IPFS
@@ -40,6 +40,7 @@ The process for lodging a (property) development application in NSW varies from 
 1. Developer submits final plan to Land Registry Services through web portal for Plan Registration 
     * **Proposed layer updated** 
 
+(this is simplified down to the core steps in the process)
  
 
 ## Relevant templates and resources 
