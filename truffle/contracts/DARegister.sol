@@ -16,7 +16,7 @@ contract DARegister {
 
     }
 
-    function getDARegisterAddress (string _daId) public view returns(address) {
+    function getDADetailsAddress (string _daId) public view returns(address) {
         return register[_daId];
     }
 

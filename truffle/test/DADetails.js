@@ -92,6 +92,51 @@ contract('DADetails', function (accounts) {
   
   });
 
+  it("should change add event logs and print the logs", async () => {
+    var daId = "DAID";
+    var dateLodged = "123456";
+    var description = "Test geographic file types";
+    var lga ="BCC";
+
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
+    daDetails.addEventLog("abc", "abc", "abcdc");
+
+    var eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("1st EVENTNUMBER:");
+    console.log(eventLogsNumber);
+
+    daDetails.addEventLog("efg", "efg", "efgsfa");
+    daDetails.addEventLog("efg", "efg", "efgsfa");
+    
+    eventLogsNumber = await daDetails.getEventLogsNumber();
+
+    console.log("2nd EVENTNUMBER:");
+    console.log(eventLogsNumber);
+    });
+
+  
+     it("should change the contract state to DA Lodged)", async () => {
+       // arrange
+       var dateLodged = 12334567;
+       var description = "Testing DA Lodge";
+       var lga = "BCC";
+       var daid = "DAID";
+       var estimatedcost = 131443;
+       var dateApproved = 12345678;
+
+       // act
+       var daDetails = await DADetails.new(daid, dateLodged, description, lga);
+       daDetails.DALodge(accounts[1], daid, dateLodged, description, lga, estimatedcost, dateApproved);
+       var currentState = await daDetails.getCurrentState();
+       console.log(currentState);
+
+
+     });
+
+
+
+
   // 
 
 //   it("should call a function that depends on a linked library", async () => {
