@@ -5,11 +5,12 @@ contract('DADetails', function (accounts) {
 
     // arrange
     var dateLodged = "12334567";
+    var daId = "DAID";
     var description = "hello";
     var lga = "BCC";
 
     // act
-    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
 
     var retrivedDateLodged = await daDetails.dateLodged();
     var retrivedDescription = await daDetails.description();
@@ -23,11 +24,12 @@ contract('DADetails', function (accounts) {
 
   it("should return a list of the geographic files in the contract", async() => {
 
+    var daId = "DAID";
     var dateLodged = "123456";
     var description = "Test geographic file types";
     var lga ="BCC";
 
-    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
     var fileName = "nongeographicfile.pdf";
     var fileType = "conditions";
     var uploadedBy = 0x123;
@@ -35,16 +37,26 @@ contract('DADetails', function (accounts) {
 
     daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
 
-    var fileCount = await daDetails.getFileNamesCount();
-    console.log(fileCount);
-
-    for (let f = 0; f < fileCount; f++) {
-      console.log(await daDetails.getFileName(f));
-    }
 
     daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
 
-    console.log("version count for nongeographicfile.pdf");
+    // add a geographic file
+    fileName = "geographicfile.json";
+    description = "Test geography file";
+    fileType = "geography";
+    uploadedBy = 0xacc;
+    ipfsHash = "hash3";
+    daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
+
+    // update the geographic file a couple of times
+    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash4");
+    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash5");
+    
+    // add a second geographic file
+    daDetails.addAttachment("geofile2.json", "geography", 0xacc, "hash6");
+
+
+    console.log("version count for geographicfile.json");
     var versionCount = await daDetails.getAttachmentVersionCount(fileName);
     console.log(versionCount);
 
@@ -63,15 +75,30 @@ contract('DADetails', function (accounts) {
 
     console.log("uploaded by:");
     console.log(await daDetails.getUploadedBy(fileName));
+
+    // loop through the files, and get a list of the ones that are geographic
+    var fileCount = await daDetails.getFileNamesCount();
+    console.log(fileCount);
+
+    for (let f = 0; f < fileCount; f++) {
+      var theFileName = await daDetails.getFileName(f);
+      console.log(theFileName);
+      if (await daDetails.getFileType(theFileName) == "geography") {
+        console.log("GEOGRAPHY FILE - latest version at");
+        console.log(await daDetails.getLatestIpfsHash(theFileName));
+      }
+    }
+
   
   });
 
   it("should change add event logs and print the logs", async () => {
+    var daId = "DAID";
     var dateLodged = "123456";
-    var description = "UniTest for event logs";
+    var description = "Test geographic file types";
     var lga ="BCC";
 
-    var daDetails = await DADetails.new(dateLodged, description, lga);
+    var daDetails = await DADetails.new(daId, dateLodged, description, lga);
     daDetails.addEventLog("abc", "abc", "abcdc");
 
     var eventLogsNumber = await daDetails.getEventLogsNumber();
