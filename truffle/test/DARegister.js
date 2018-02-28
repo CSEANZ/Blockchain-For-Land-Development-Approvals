@@ -33,10 +33,10 @@ contract('DARegister', function (accounts) {
             retrievedIds.push(await daRegister.getDARegisterId(index));
         }
 
-        var retrievedAddress1 = await daRegister.getDARegisterAddress(daId1);
-        var retrievedAddress2 = await daRegister.getDARegisterAddress(daId2);
-        var retrievedAddress3 = await daRegister.getDARegisterAddress(daId3);
-        var retrievedAddress4 = await daRegister.getDARegisterAddress(daId4);
+        var retrievedAddress1 = await daRegister.getDADetailsAddress(daId1);
+        var retrievedAddress2 = await daRegister.getDADetailsAddress(daId2);
+        var retrievedAddress3 = await daRegister.getDADetailsAddress(daId3);
+        var retrievedAddress4 = await daRegister.getDADetailsAddress(daId4);
 
         // assert
         console.log("There are ", registerCount, " DAs registered");
