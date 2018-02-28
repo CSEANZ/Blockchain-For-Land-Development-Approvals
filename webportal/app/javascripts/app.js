@@ -40,26 +40,63 @@ window.App = {
     });
   },
 
+  uploadFiles: function () {
+    console.log("Uploading Files");
+    reader.onloadend = function () {
+      const ipfs = window.IpfsApi('52.237.243.236', 5001) // Connect to IPFS
+      const buf = buffer.Buffer(reader.result) // Convert data into buffer
+      ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
+        if (err) {
+          console.error(err)
+          return
+        }
+        let url = `https://ipfs.io/ipfs/${result[0].hash}`
+        console.log(`Url --> ${url}`)
+        counter++
+
+        const photo = document.getElementById("attachments");
+        if (counter > photo.files.length - 1) return;
+        reader.readAsArrayBuffer(photo.files[counter]);
+      });
+    }
+    const photo = document.getElementById("attachments");
+    reader.readAsArrayBuffer(photo.files[0]); // Read Provided File    
+  },
+
   getDARegisterAddress: function () {
     var self = this;
 
     var daid = document.getElementById("searchdaid").value;
     var daRegister;
-    DaRegister.deployed().then(function (instance) {
-      daRegister = instance;
-      return daRegister.getDARegisterAddress.call(daid, { from: account });
-    }).then(function (value) {
-      var address = value.valueOf();
-      return DaDetails.at(address).then(function (details) {
-        var description = document.getElementById("description");
-         return details.description().then(function (desc) { 
-          description.innerHTML = desc;
-        }) ;
+    DaRegister.deployed()
+      .then(function (instance) {
+        daRegister = instance;
+        return daRegister.getDARegisterAddress.call(daid, { from: account });
+      })
+      .then(function (value) {
+        var address = value.valueOf();
+        return DaDetails.at(address).then(function (details) {
+          var attachments = document.getElementById("attachments");
+          var ecost = document.getElementById("ecost");
+
+          details.daid().then(function (daid) {
+            document.getElementById("daid").value = daid;
+          });
+          details.dateLodged().then(function (dateLodged) {
+            document.getElementById("dateLodged").value = new Date(dateLodged*1000).toLocaleDateString();
+          });
+          details.description().then(function (desc) {
+            document.getElementById("description").value = desc;
+          });
+          details.lga().then(function (lga) {
+            document.getElementById("lga").value = lga;
+          });
+          
+        });
+      }).catch(function (e) {
+        console.log(e);
+        self.setStatus("Error getting da; see log.");
       });
-    }).catch(function (e) {
-      console.log(e);
-      self.setStatus("Error getting da; see log.");
-    });
   },
 
   submitDADetails: function () {
@@ -71,6 +108,10 @@ window.App = {
 
     let dateLodgedInUnixTimestamp = date / 1000;
     var lga = document.getElementById("lga").value;
+
+    this.setStatus("Uploading files... (please wait)");
+    // this.uploadFiles(); // upload all files by Sarthak Dabhi
+
     this.setStatus("Initiating transaction... (please wait)");
 
     var daRegister;
