@@ -6,8 +6,10 @@ import { default as Web3 } from 'web3';
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
+import daRegister_artifacts from '../../../truffle/build/contracts/DARegister.json'
 import daDetails_artifacts from '../../../truffle/build/contracts/DADetails.json'
 
+var DaRegister = contract(daRegister_artifacts);
 var DaDetails = contract(daDetails_artifacts);
 
 var accounts;
@@ -17,6 +19,7 @@ window.App = {
   start: function () {
     var self = this;
 
+    DaRegister.setProvider(web3.currentProvider);
     DaDetails.setProvider(web3.currentProvider);
 
     // Get the initial account balance so it can be displayed.
@@ -37,25 +40,53 @@ window.App = {
     });
   },
 
+  getDARegisterAddress: function () {
+    var self = this;
+
+    var daid = document.getElementById("searchdaid").value;
+    var daRegister;
+    DaRegister.deployed().then(function (instance) {
+      daRegister = instance;
+      return daRegister.getDARegisterAddress.call(daid, { from: account });
+    }).then(function (value) {
+      var address = value.valueOf();
+      return DaDetails.at(address).then(function (details) {
+        var description = document.getElementById("description");
+         return details.description().then(function (desc) { 
+          description.innerHTML = desc;
+        }) ;
+      });
+    }).catch(function (e) {
+      console.log(e);
+      self.setStatus("Error getting da; see log.");
+    });
+  },
+
   submitDADetails: function () {
     var self = this;
-    var daDetails;
     var daid = document.getElementById("daid").value;
     var description = document.getElementById("description").value;
     var dateLodged = document.getElementById("dateLodged").value;
     let date = (new Date(dateLodged)).getTime();
 
-    let dateLodgedInUnixTimestamp = date/1000;
+    let dateLodgedInUnixTimestamp = date / 1000;
     var lga = document.getElementById("lga").value;
     this.setStatus("Initiating transaction... (please wait)");
-    
-    DaDetails.new(dateLodgedInUnixTimestamp, description, lga, {from: account, gas: 638587}).then(async (response) => { 
-      daDetails = response; 
-      this.setStatus(daDetails.getDescription());   
+
+    var daRegister;
+
+    DaRegister.deployed().then(function (instance) {
+      daRegister = instance;
+      return daRegister.createDA(daid, dateLodgedInUnixTimestamp, description, lga, { from: account });
+    }).then(function () {
+      self.setStatus("Transaction complete!");
+    }).catch(function (e) {
+      console.log(e);
+      self.setStatus("Error creating DA");
     });
   },
 
-  setStatus: function(message) {
+  setStatus: function (message) {
     var status = document.getElementById("status");
     status.innerHTML = message;
   },
