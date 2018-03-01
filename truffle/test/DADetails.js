@@ -1,6 +1,7 @@
 var DADetails = artifacts.require("./DADetails.sol");
 
 contract('DADetails', function (accounts) {
+
   it("should construct a new instance", async () => {
 
     // arrange
@@ -21,7 +22,7 @@ contract('DADetails', function (accounts) {
     assert.equal(retrivedDescription.valueOf(), description, "description isn't the same");
     assert.equal(retrivedLga.valueOf(), lga, "lga isn't the same");
   });
-
+/*
   it("should return a list of the geographic files in the contract", async() => {
 
     var daId = "DAID";
@@ -88,10 +89,10 @@ contract('DADetails', function (accounts) {
         console.log(await daDetails.getLatestIpfsHash(theFileName));
       }
     }
-
   
   });
-
+  */
+ 
   it("should change add event logs and print the logs", async () => {
     var daId = "DAID";
     var dateLodged = "123456";
@@ -99,41 +100,87 @@ contract('DADetails', function (accounts) {
     var lga ="BCC";
 
     var daDetails = await DADetails.new(daId, dateLodged, description, lga);
-    daDetails.addEventLog("abc", "abc", "abcdc");
-
-    var eventLogsNumber = await daDetails.getEventLogsNumber();
-
-    console.log("1st EVENTNUMBER:");
-    console.log(eventLogsNumber);
-
-    daDetails.addEventLog("efg", "efg", "efgsfa");
-    daDetails.addEventLog("efg", "efg", "efgsfa");
+    daDetails.addEventLog("1111", "abc", "abc", "abcdc");
+    daDetails.addEventLog("2222", "efg", "efg", "efgsfa");
+    daDetails.addEventLog("3333", "efg", "efg", "efgsfa");
     
-    eventLogsNumber = await daDetails.getEventLogsNumber();
-
-    console.log("2nd EVENTNUMBER:");
-    console.log(eventLogsNumber);
+    //console.log("2nd EVENTNUMBER:");
+    //console.log(await daDetails.getEventLogsCount());
+    
+    var eventLogCount = await daDetails.getEventLogsCount();
+    console.log("EventLogCount");
+    console.log(eventLogCount);
+    
+    for (let f = 0; f < eventLogCount; f++) {
+      var EventLogId = await daDetails.getEventLogId(f);
+      console.log(EventLogId);
+    }
+    
     });
 
-  
-     it("should change the contract state to DA Lodged)", async () => {
-       // arrange
-       var dateLodged = 12334567;
-       var description = "Testing DA Lodge";
-       var lga = "BCC";
-       var daid = "DAID";
-       var estimatedcost = 131443;
-       var dateApproved = 12345678;
 
-       // act
-       var daDetails = await DADetails.new(daid, dateLodged, description, lga);
-       daDetails.DALodge(accounts[1], daid, dateLodged, description, lga, estimatedcost, dateApproved);
-       var currentState = await daDetails.getCurrentState();
-       console.log(currentState);
+  it("should update and return the contract states from DALodged to PlanRegistered 0 - 7 )", async () => {
+    // arrange
+    var dateLodged = 12334567;
+    var description = "Testing DA Lodge";
+    var lga = "BCC";
+    var daid = "DAID";
+    var estimatedcost = 131443;
+    var dateApproved = 12345678;
+
+    // act
+    var daDetails = await DADetails.new(daid, dateLodged, description, lga);
+
+    daDetails.DALodge(accounts[1], daid, dateLodged, description, lga, estimatedcost, dateApproved);
+    var currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for DALodged ", currentState.toString());
+    console.log("---------------------------");
+
+    var daApproveStatus = await daDetails.DAApprove(true);
+    currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for DAApprove ", currentState.toString());
+    console.log("---------------------------");
+
+    daDetails.CCLodge(12345, "cc lodge", 23456);
+    var currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for CCLodged ", currentState.toString());
+    console.log("---------------------------");
+
+    var ccApproveStatus = await daDetails.CCApprove(true);
+    currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for CCApprove ", currentState.toString());
+    console.log("---------------------------");
+
+    daDetails.SCLodge(12345, "sc lodge", 23456);
+    var currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for SCLodged ", currentState.toString());
+    console.log("---------------------------");
+
+    var ccApproveStatus = await daDetails.SCApprove(true);
+    currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for SCApprove ", currentState.toString());
+    console.log("---------------------------");
+
+    daDetails.PlanApprove(12345, "plan approve", 23456);
+    var currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for SCLodged ", currentState.toString());
+    console.log("---------------------------");
+
+    var ccApproveStatus = await daDetails.PlanRegister(true);
+    currentState = await daDetails.getCurrentState();
+    console.log("---------------------------");
+    console.log("current state for SCApprove ", currentState.toString());
+    console.log("---------------------------");
 
 
-     });
-
+  });
 
 
 
