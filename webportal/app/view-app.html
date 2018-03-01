@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Development Application - Blockchain POC Frontend</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  <script src="./app.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="./app.js"></script>
 </head>
+
 <body>
   <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Development Application</a>
@@ -22,17 +27,18 @@
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link active" href="index.html">
-                Forms <span class="sr-only">(current)</span>
+                Forms
+                <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="new-app.html">
-                New 
+                New
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="view-app.html">
-                View 
+                View
               </a>
             </li>
             <li class="nav-item">
@@ -45,7 +51,7 @@
       </nav>
 
       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
- 
+
         <div id="viewdevapp">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">View Development Application</h1>
@@ -60,7 +66,7 @@
             <div class="form-group row">
               <label for="dateLodged" class="col-sm-2 col-form-label">Date Lodged</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="dateLodged"  readonly>
+                <input type="text" class="form-control" id="dateLodged" readonly>
               </div>
             </div>
             <div class="form-group row">
@@ -72,10 +78,10 @@
             <div class="form-group row">
               <label for="parcels" class="col-sm-2 col-form-label">Affected Parcels</label>
               <div class="col">
-                <input type="text" style="width:250px" id="lot1"  readonly>
+                <input type="text" style="width:250px" id="lot1" readonly>
               </div>
               <div class="col">
-                <input type="text" style="width:250px" id="plan1"  readonly>
+                <input type="text" style="width:250px" id="plan1" readonly>
               </div>
             </div>
             <div class="form-group row">
@@ -90,10 +96,18 @@
                 <input type="text" class="form-control" id="lga" readonly>
               </div>
             </div>
-            <div class="form-group row">
-              <label for="attachments" class="col-sm-2 col-form-label">Attachments</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="attachments" readonly>
+
+            <div id="attachments">
+              <div class="form-group">
+                <label for="attachments">Attachment</label>
+                <div class="col-md-10 col-sm-12 float-right" id="right-aside">
+                  <div class="content">
+                    <h4 class="text-secondary">View attachments</h4>
+                    <ul class="list-group" id="view-app-list">
+                      <li class="list-group-item">Loading...</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="form-group row">
@@ -102,29 +116,35 @@
                 <input type="text" class="form-control" id="status" readonly>
               </div>
             </div>
-            <br><br><br><br><br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
           </form>
-        </div>       
+        </div>
       </main>
     </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-  crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-  crossorigin="anonymous"></script>
-<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prototype/1.7.3/prototype.min.js"></script>
-<script src="https://wzrd.in/standalone/buffer"></script>
-<script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
-  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
-<script type="text/javascript">
-  var $$ = jQuery.noConflict();
-  var fileName = "";
-  var fileType = "";
-</script>
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prototype/1.7.3/prototype.min.js"></script>
+  <script src="https://wzrd.in/standalone/buffer"></script>
+  <script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
+  <script type="text/javascript">
+    var $$ = jQuery.noConflict();
+    var fileName = "";
+    var fileType = "";
+  </script>
+  <script src="javascripts/view.js"></script>
 </body>
+
 </html>
