@@ -25,6 +25,8 @@ var vars = query.split("&");
 var pair = vars[0].split("=");
 var daid=pair[1];
 
+refreshMap('', '', '');
+
 DaRegister.deployed().then(function (instance) {
     daRegister = instance;
     console.log("daRegister.address: " + daRegister.address);
@@ -42,16 +44,15 @@ DaRegister.deployed().then(function (instance) {
         return details.getLatestIpfsHash('proposed_lot').then(function (hash) {
             console.log("value proposed hash is: " + hash);
             proposedHash = hash;
-            //refresMap(hash,'','');
+            //refreshMap(hash,'','');
             //oldLotGeojson = 'https://ipfs.io/ipfs/' + details.getLatestIpfsHash('old_lot')
             //description.innerHTML = desc;
             return details.getLatestIpfsHash('old_lot').then(function (hash) {
                 console.log("value of old hash is: " + hash);
                 oldHash = hash;
-                //refresMap(proposedHash,oldHash,'');
+                //refreshMap(proposedHash,oldHash,'');
                 return details.getFileNamesCount().then(function (fileCount) {
                     console.log("value of file count is: " + fileCount);
-                    refresMap(proposedHash, oldHash, '');
                 });
             });
 
@@ -61,7 +62,7 @@ DaRegister.deployed().then(function (instance) {
     console.log(e);
 });
 
-function refresMap(proposedHash, oldHash, parcelIds) {
+function refreshMap(proposedHash, oldHash, parcelIds) {
     /*
     for (var i = 0; i < daDetails.parcels.length; i++) {
         parcelString += parcelString + ',' + daDetails.parcels[i];
