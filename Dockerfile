@@ -1,36 +1,23 @@
-FROM crcsi/qa4-nodejs:qa4l-web
-
+FROM node:7.9.0
 MAINTAINER rdeen@crcsi.com.au
 
+# Install node requirements with yarn, it's better
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN  apt-get update && apt-get install -y yarn
+
+# Create app directory
+RUN mkdir -p /usr/app/src
+RUN mkdir -p /usr/app/dist
+WORKDIR /usr/app/src
+
+RUN yarn global add truffle
+
 # copy and Install npm
-COPY ./src /usr/app/src
+COPY . /usr/app/src
 
-# Change EOL, Not needed if lint is not run
-# RUN find . -type f -print0 | xargs -0 dos2unix
-RUN apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
+WORKDIR /usr/app/src/truffle
 
-# Link global modules
-RUN npm link
-
-# Install bower, run gulp - Bower components need to be copied from crcsi/qa4-nodejs:qa4l-web install location
-# RUN bower install
-
-# Gulp Skip Lint
-RUN gulp pre-clean compress compress-css clean build_node copy_libs copy_config
-
-# Change current directory to dist
-WORKDIR /usr/app/dist
-
-# Link global modules
-RUN npm link
-
-# remove source
-RUN rm -rf /usr/app/src
-
-# create outs dir for print to pdf
-RUN mkdir -p /usr/app/dist/outs
-
-# Start App
-EXPOSE 3000
-CMD [ "npm", "start" ]
+RUN truffle.cmd migrate
+RUN truffle.cmd serve
 
