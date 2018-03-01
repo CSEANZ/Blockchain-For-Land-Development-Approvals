@@ -11,10 +11,10 @@
 <body>
   <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Development Application</a>
-    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <input class="form-control form-control-dark w-100" type="text" aria-label="Search">
     <ul class="navbar-nav px-3">
       <li class="nav-item text-nowrap">
-        <a class="nav-link" href="#">Sign out</a>
+        <a class="nav-link" href="#"></a>
       </li>
     </ul>
   </nav>
@@ -32,12 +32,12 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="new-app.html">
-                New 
+                New
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="view-app.html">
-                View 
+                View
               </a>
             </li>
             <li class="nav-item">
@@ -55,69 +55,86 @@
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">Approve Development Application</h1>
           </div>
-          <form>
-            <div class="form-group row">
-              <label for="daid" class="col-sm-2 col-form-label">Application Id</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="daid" >
-              </div>
-            </div>
+          <form id="mainForm">
             <div class="form-group row">
               <label for="states" class="col-sm-2 col-form-label">Application Status</label>
               <div class="col-sm-10">
-                <select size="4" id="states">
+                <select size="4" id="states" onchange="App.showDiv(this)">
                   <option value="DALodged">DALodged</option>
+                  <option value="DAApproved">DAApproved</option>
                   <option value="CCLodged">CCLodged</option>
+                  <option value="CCApproved">CCApproved</option>
                   <option value="SCLodged">SCLodged</option>
-                  <option value="PlanLodged">PlanLodged</option>
+                  <option value="SCApproved">SCApproved</option>
+                  <option value="PlanApprove">PlanApprove</option>
+                  <option value="PlanRegistered">PlanRegistered</option>
                 </select>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="daid" class="col-sm-2 col-form-label">Application Id</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="daid">
               </div>
             </div>
             <div class="form-group row">
               <label for="dateLodged" class="col-sm-2 col-form-label">Date Lodged</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="dateLodged" >
+                <input type="date" class="form-control" id="dateLodged">
               </div>
             </div>
             <div class="form-group row">
               <label for="dateApproved" class="col-sm-2 col-form-label">Date Approved</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="dateApproved" >
+                <input type="date" class="form-control" id="dateApproved">
               </div>
             </div>
             <div class="form-group row">
               <label for="description" class="col-sm-2 col-form-label">Description</label>
               <div class="col-sm-10">
-                <textarea id="description" class="form-control" rows="2" ></textarea>
+                <textarea id="description" class="form-control" rows="2"></textarea>
               </div>
             </div>
             <div class="form-group row">
               <label for="ecost" class="col-sm-2 col-form-label">Estimated Costs</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="ecost" >
+                <input type="text" class="form-control" id="ecost">
               </div>
             </div>
             <div class="form-group row">
               <label for="lga" class="col-sm-2 col-form-label">LGA</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="lga" >
+                <input type="text" class="form-control" id="lga">
               </div>
             </div>
-            <div class="form-group row">
-              <label for="attachments" class="col-sm-2 col-form-label">Attachments</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="attachments" >
-              </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-10">
-                  <button type="submit" class="btn btn-primary" onclick="App.approveDA()">Lodge</button>
+            <div id="attachments">
+              <div class="form-group">
+                <label for="attachments">Attachment</label>
+                <div class="input-group mb-3">
+                  <input type="file" class="form-control" placeholder="Attachment" name="attachments[]">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary upload-attachment" type="button">Upload</button>
+                  </div>
                 </div>
               </div>
+              <div class="form-group">
+                  <button type="button" class="btn btn-outline-secondary" id="add-new-attachments">Add new attachments</button>
+                </div>               
+            </div>
+
+
+            <div class="form-group row">
+              <label for="status" class="col-sm-2 col-form-label">Status</label>
+              <span id="status"></span>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="button" class="btn btn-primary" onclick="App.approveDA()">Approve</button>
+                <button type="button" class="btn btn-secondary" onclick="App.clear()">Clear</button>
+              </div>
+            </div>
           </form>
-          <!-- <form>
-              
-            </form> -->
         </div>
     </div>
     </main>
@@ -125,22 +142,22 @@
   </div>
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-  crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-  crossorigin="anonymous"></script>
-<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prototype/1.7.3/prototype.min.js"></script>
-<script src="https://wzrd.in/standalone/buffer"></script>
-<script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
-  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
-<script type="text/javascript">
-  var $$ = jQuery.noConflict();
-  var fileName = "";
-  var fileType = "";
-</script>
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prototype/1.7.3/prototype.min.js"></script>
+  <script src="https://wzrd.in/standalone/buffer"></script>
+  <script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
+  <script type="text/javascript">
+    var $$ = jQuery.noConflict();
+    var fileName = "";
+    var fileType = "";
+  </script>
 </body>
 
 </html>

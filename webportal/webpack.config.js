@@ -2,8 +2,9 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: {
+  entry:  {
     app: ['./app/javascripts/app.js'],
+    view: ['./app/javascripts/view.js'],
     map: ['./app/javascripts/map.js']
   },
   output: {
