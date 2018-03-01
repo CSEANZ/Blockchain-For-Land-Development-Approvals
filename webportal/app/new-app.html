@@ -2,12 +2,13 @@
 <html>
 <head>
   <title>Development Application - Blockchain POC Frontend</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  <script src="./app.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  
+  <script src="./app.js"></script>
 </head>
 <body>
   <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Development Application</a>
-    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <input class="form-control form-control-dark w-100" type="text" aria-label="Search">
     <ul class="navbar-nav px-3">
       <li class="nav-item text-nowrap">
         <a class="nav-link" href="#"></a>
@@ -49,7 +50,7 @@
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">New Development Application</h1>
           </div>
-          <form>
+          <form id="mainForm">
             <div class="form-group row">
               <label for="daid" class="col-sm-2 col-form-label">Application Id</label>
               <div class="col-sm-10">
@@ -69,21 +70,6 @@
               </div>
             </div>
             <div class="form-group row">
-              <label for="parcels" class="col-sm-2 col-form-label">Affected Parcels</label>
-              <div class="col">
-                <input type="text" style="width:250px" id="lot1" placeholder="Lot">
-              </div>
-              <div class="col">
-                <input type="text" style="width:250px" id="plan1" placeholder="Plan">
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="ecost" class="col-sm-2 col-form-label">Estimated Costs</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="ecost" placeholder="Estimated Cost">
-              </div>
-            </div>
-            <div class="form-group row">
               <label for="lga" class="col-sm-2 col-form-label">LGA</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" id="lga">
@@ -98,11 +84,12 @@
                     <button class="btn btn-outline-secondary upload-attachment" type="button">Upload</button>
                   </div>
                 </div>
-              </div>                
+              </div>
+              <div class="form-group">
+                  <button type="button" class="btn btn-outline-secondary" id="add-new-attachments">Add new attachments</button>
+                </div>               
             </div>
-            <div class="form-group">
-              <button type="button" class="btn btn-outline-secondary" id="add-new-attachments">Add new attachments</button>
-            </div>
+            
 
             <div class="form-group row">
               <label for="status" class="col-sm-2 col-form-label">Status</label>
@@ -110,7 +97,8 @@
             </div>
             <div class="form-group row">
               <div class="col-sm-10">
-                <button type="submit" class="btn btn-primary" onclick="App.submitDADetails()">Lodge</button>
+                <button type="button" class="btn btn-primary" onclick="App.submitDADetails()">Lodge</button>
+                <button type="button" class="btn btn-secondary" onclick="App.clear()">Clear</button>
               </div>
             </div>
           </form>
@@ -136,6 +124,5 @@
   var fileName = "";
   var fileType = "";
 </script>
-
 </body>
 </html>
