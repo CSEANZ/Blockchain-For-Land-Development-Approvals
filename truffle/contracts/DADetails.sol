@@ -258,16 +258,64 @@ contract DADetails {
         return attachment.uploadedBy;
     }
 
-    function addEventLog(string eventLogId, string party, string description, string ipfsHash) public returns (bool) {
+    // convert a bytes32 into a string
+    function bytes32ToString (bytes32 data) returns (string) {
+        bytes memory bytesString = new bytes(32);
+        for (uint j=0; j<32; j++) {
+            byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[j] = char;
+            }
+        }
+        return string(bytesString);
+    }
+
+    // convert uint to Bytes
+    function uintToBytes(uint v) constant returns (bytes32 ret) {
+        if (v == 0) {
+            ret = "0";
+        } else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+        return ret;
+    }
+
+    // Concate string
+    function strConcat(string _a, string _b, string _c) internal returns (string) {
+        bytes memory _ba = bytes(_a);
+        bytes memory _bb = bytes(_b);
+        bytes memory _bc = bytes(_c);
+        string memory abcde = new string(_ba.length + _bb.length + _bc.length);
+        bytes memory babcde = bytes(abcde);
+        uint k = 0;
+        for (uint i = 0; i < _ba.length; i++) {
+            babcde[k++] = _ba[i];
+        }
+        for (i = 0; i < _bb.length; i++) {
+            babcde[k++] = _bb[i];
+        }
+        for (i = 0; i < _bc.length; i++) {
+            babcde[k++] = _bc[i];
+        }
+        return string(babcde);
+    }
+
+
+    function addEventLog(string party, string description, string ipfsHash) public returns (string) {
         EventLog eventLog;
+        // bytes32ToString(bytes32(eventLogIds.length))
+        var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
         eventLogIds.push(eventLogId);
-        //eventLog.id = eventLogId;
         eventLog.date = now;
         eventLog.party = party;
         eventLog.description = description;
         eventLog.ipfsHash = ipfsHash;
         eventLogs[eventLogId] = eventLog;
-        return true;
+        return string(eventLogId);
     }
 
     function getEventLogById(string eventLogId) public view returns(EventLog) {
