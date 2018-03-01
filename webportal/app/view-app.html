@@ -3,9 +3,8 @@
 
 <head>
   <title>Development Application - Blockchain POC Frontend</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-    crossorigin="anonymous">
-  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  
+  <script src="./app.js"></script>
 </head>
 
 <body>
@@ -75,15 +74,6 @@
               </div>
             </div>
             <div class="form-group row">
-              <label for="parcels" class="col-sm-2 col-form-label">Affected Parcels</label>
-              <div class="col">
-                <input type="text" style="width:250px" id="lot1" readonly>
-              </div>
-              <div class="col">
-                <input type="text" style="width:250px" id="plan1" readonly>
-              </div>
-            </div>
-            <div class="form-group row">
               <label for="ecost" class="col-sm-2 col-form-label">Estimated Costs</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" id="ecost" readonly>
@@ -101,7 +91,6 @@
                 <label for="attachments">Attachment</label>
                 <div class="col-md-10 col-sm-12 float-right" id="right-aside">
                   <div class="content">
-                    <h4 class="text-secondary">View attachments</h4>
                     <ul class="list-group" id="view-app-list">
                       <li class="list-group-item">Loading...</li>
                     </ul>

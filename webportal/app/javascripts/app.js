@@ -137,9 +137,6 @@ window.App = {
       .then(function (value) {
         var address = value.valueOf();
         return DaDetails.at(address).then(function (details) {
-          var attachments = document.getElementById("attachments");
-          var ecost = document.getElementById("ecost");
-
           details.daid().then(function (daid) {
             document.getElementById("daid").value = daid;
           });
