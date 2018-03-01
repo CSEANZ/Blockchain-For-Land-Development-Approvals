@@ -18,12 +18,13 @@ DaDetails.setProvider(web3.currentProvider);
 
 //var daid = '123';
 var daRegister;
-//var proposedLotGeojson='';
-//var oldLotGeojson='';
+var proposedLotGLink='';
+var oldLotGLink='';
 var query = window.location.search.substring(1);
 var vars = query.split("&");
 var pair = vars[0].split("=");
 var daid=pair[1];
+
 DaRegister.deployed().then(function (instance) {
     daRegister = instance;
     console.log("daRegister.address: " + daRegister.address);
@@ -58,7 +59,6 @@ DaRegister.deployed().then(function (instance) {
     });
 }).catch(function (e) {
     console.log(e);
-    //self.setStatus("Error getting da; see log.");
 });
 
 function refresMap(proposedHash, oldHash, parcelIds) {
@@ -69,8 +69,8 @@ function refresMap(proposedHash, oldHash, parcelIds) {
     */
 
     var lotIdString = (parcelIds == '' ? '1104//DP1191303,1393//DP1205498' : parcelIds);
-    var proposedLotGLink = (proposedHash == '' ? 'https://ipfs.io/ipfs/QmduWgc8GusY8XRtfVPs6APoQcdRhKwneM3pQxNzFdUHNk' : 'https://ipfs.io/ipfs/' + proposedLotGeojson);
-    var oldLotGLink = (oldHash == '' ? 'https://ipfs.io/ipfs/QmTfYnrtQqJcEu9fPxGnj94TLDq16yPBuUuSvhBzzJvJFi' : 'https://ipfs.io/ipfs/' + oldHash);
+    proposedLotGLink = (proposedHash == '' ? 'https://ipfs.io/ipfs/QmduWgc8GusY8XRtfVPs6APoQcdRhKwneM3pQxNzFdUHNk' : 'https://ipfs.io/ipfs/' + proposedHash);
+    oldLotGLink = (oldHash == '' ? 'https://ipfs.io/ipfs/QmTfYnrtQqJcEu9fPxGnj94TLDq16yPBuUuSvhBzzJvJFi' : 'https://ipfs.io/ipfs/' + oldHash);
 
     /*Before merge
     var lotIdString= '1104//DP1191303,1393//DP1205498';
