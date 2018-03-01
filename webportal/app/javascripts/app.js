@@ -157,9 +157,8 @@ window.App = {
       });
   },
 
-  clear: function() {
-    document.getElementById("newapp").reset();
-    document.getElementById("status").value = "";
+  clear: function () {
+    document.getElementById("mainForm").reset();
   },
 
   submitDADetails: function () {
@@ -184,124 +183,194 @@ window.App = {
       console.log("created createDA");
       self.setStatus("created Development Application");
       return daRegister.getDADetailsAddress.call(daid, { from: account });
-      }).then(function (result2) {
-        console.log("got address: " + result2);
-        self.setStatus("retrieving Attachments");
-        var address = result2.valueOf();
-        return DaDetails.at(address).then(function (details) {
-          console.log("got details: " + details);
+    }).then(function (result2) {
+      console.log("got address: " + result2);
+      self.setStatus("retrieving Attachments");
+      var address = result2.valueOf();
+      return DaDetails.at(address).then(function (details) {
+        console.log("got details: " + details);
 
-         return localforage.getItem('myStorage').then(function (storage) {
+        return localforage.getItem('myStorage').then(function (storage) {
 
           self.setStatus("Adding " + storage.length + " Attachments...");
           console.log("got storage: " + storage.length);
           storage.sort(function (x, y) {
-             return y.timestamp - x.timestamp;
-           });
-          
-           for (var i = 0; i < storage.length; i++) {
-             details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
+            return y.timestamp - x.timestamp;
+          });
+
+          for (var i = 0; i < storage.length; i++) {
+            details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
               console.log("addAttachment " + i + ": " + result5);
-             });
-           }
+            });
+          }
 
-           localforage.removeItem('myStorage').then(function (result6) {
+          localforage.removeItem('myStorage').then(function (result6) {
             console.log("clear local storage");
-           });
+          });
 
-           self.setStatus("Finished creating Development Application - Press Clear");
+          self.setStatus("Finished creating Development Application - Press Clear");
 
         });
+      });
     });
-  });
   },
 
   approveDA: function () {
     var self = this;
     var daid = document.getElementById("daid").value;
-    // var description = document.getElementById("description").value;
-    // var dateLodged = document.getElementById("dateLodged").value;
-    // let lodgedDate = (new Date(dateLodged)).getTime();
-    // let dateLodgedInUnixTimestamp = lodgedDate / 1000;
+    var description = document.getElementById("description").value;
+    var dateLodged = document.getElementById("dateLodged").value;
+    let lodgedDate = (new Date(dateLodged)).getTime();
+    let dateLodgedInUnixTimestamp = lodgedDate / 1000;
 
-    // var lga = document.getElementById("lga").value;
-    // var status = document.getElementById("states").value;
-    // var estimatedcost = document.getElementById("ecost").value;
-
-    // var dateApproved = document.getElementById("dateApproved").value;
-    // let approvedDate = (new Date(dateApproved)).getTime();
-    // let dateApprovedInUnixTimestamp = approvedDate / 1000;
-    // var applicant;
-
-
-    // self.setStatus("Initiating transaction... (please wait)");
+    var lga = document.getElementById("lga").value;
+    var status = document.getElementById("states").value;
+    var estimatedcost = document.getElementById("ecost").value;
+    var dateApproved = document.getElementById("dateApproved").value;
+    let approvedDate = (new Date(dateApproved)).getTime();
+    let dateApprovedInUnixTimestamp = approvedDate / 1000;
 
     var daRegister;
-    DaRegister.deployed()
-      .then(function (instance) {
-        daRegister = instance;
-        return daRegister.getDADetailsAddress.call(daid, { from: account });
-      }).then(function (value) {
-        console.log(value.valueOf());
-        var address = value.valueOf();
+
+    DaRegister.deployed().then(function (instance) {
+      daRegister = instance;
+      console.log("Retrieving");
+      self.setStatus("Retrieving Development Application");
+      return daRegister.getDADetailsAddress.call(daid, { from: account });
+    }).then(function (result) {
+      console.log("Retrieved");
+      self.setStatus("Retrieved Development Application");
+      var address = result.valueOf();
+      return DaDetails.at(address).then(function (details) {
+
+        switch (status) {
+          case "DALodged":
+            return details.DALodge(account, daid, dateLodgedInUnixTimestamp, description, lga,
+              estimatedcost, dateApprovedInUnixTimestamp, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("DALodge Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating DALodge");
+              });
+            break;
+          case "DAApproved":
+            return details.DAApprove(true, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("DAApprove Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating DAApprove");
+              });
+            break;
+          case "CCLodged":
+            return details.CCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("CCLodge Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating CCLodge");
+              });
+            break;
+          case "CCApproved":
+            return details.CCApprove(true, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("CCApprove Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating CCApprove");
+              });
+            break;
+          case "SCLodged":
+            return details.SCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("SCLodge Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating SCLodge");
+              });
+            break;
+          case "SCApproved":
+            return details.SCApprove(true, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("SCApprove Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating SCApprove");
+              });
+            break;
+          case "PlanApprove":
+            return details.PlanApprove(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("PlanApprove Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating PlanApprove");
+              });
+            break;
+          case "PlanRegistered":
+            return details.PlanRegistered(true, { from: account })
+              .then(function () {
+                self.addAttachments(details).then(function () {
+                  self.setStatus("PlanRegistered Transaction complete!");
+                });
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error creating PlanRegistered");
+              });
+            break;
+          default:
+            {
+              console.log("Error status not implimented.");
+              self.setStatus("Error status not implimented.");
+            }
+        }
+
+        self.setStatus("Finished creating Development Application - Press Clear");
+
       });
-    //   return DaDetails.at(address).then(function (details) {
-    //     var attachments = document.getElementById("attachments");
-    //     var ecost = document.getElementById("ecost");
-    //     details.applicant().then(function (applicant) {
-    //       switch (status) {
-    //         case "DALodge":
-    //           return details.DALodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
-    //             estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
-    //             .then(function () {
-    //               self.setStatus("DALodge Transaction complete!");
-    //             }).catch(function (e) {
-    //               console.log(e);
-    //               self.setStatus("Error creating DALodge");
-    //             });
-    //           break;
-    //         case "CCLodge":
-    //           return details.CCLodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
-    //             estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
-    //             .then(function () {
-    //               self.setStatus("CCLodge Transaction complete!");
-    //             }).catch(function (e) {
-    //               console.log(e);
-    //               self.setStatus("Error creating CCLodge");
-    //             });
-    //           break;
-    //         case "SCLodge":
-    //           return details.SCLodge(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
-    //             estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
-    //             .then(function () {
-    //               self.setStatus("SCLodge Transaction complete!");
-    //             }).catch(function (e) {
-    //               console.log(e);
-    //               self.setStatus("Error creating SCLodge");
-    //             });
-    //           break;
-    //         case "PlanLodge":
-    //           return details.PlanApprove(applicant, daid, dateLodgedInUnixTimestamp, description, lga,
-    //             estimatedcost, dadateApprovedInUnixTimestampteApproved, { from: account })
-    //             .then(function () {
-    //               self.setStatus("PlanLodge Transaction complete!");
-    //             }).catch(function (e) {
-    //               console.log(e);
-    //               self.setStatus("Error creating PlanLodge");
-    //             });
-    //           break;
-    //         default:
-    //           {
-    //             console.log("Error status not implimented.");
-    //             self.setStatus("Error status not implimented.");
-    //           }
-    //       }
-    //     });
-    //   });
-    // }).catch(function (e) {
-    //   console.log(e);
-    //   self.setStatus("Error getting da; see log.");
-    // });
+    });
+  },
+
+  addAttachments: function (details) {
+    return localforage.getItem('myStorage').then(function (storage) {
+
+      if (storage) {
+
+        //self.setStatus("Adding " + storage.length + " Attachments...");
+        console.log("got storage: " + storage.length);
+        storage.sort(function (x, y) {
+          return y.timestamp - x.timestamp;
+        });
+
+        for (var i = 0; i < storage.length; i++) {
+          details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
+            console.log("addAttachment " + i + ": " + result5);
+          });
+        }
+
+        localforage.removeItem('myStorage').then(function (result6) {
+          console.log("clear local storage");
+        });
+
+        // self.setStatus("Finished creating Development Application - Press Clear");
+      }
+    });
+
   },
 
   setStatus: function (message) {
@@ -313,7 +382,6 @@ window.App = {
     document.getElementById('daid').readOnly = true;
     document.getElementById('ecost').readOnly = true;
     document.getElementById('lga').readOnly = true;
-    document.getElementById('attachments').readOnly = true;
     document.getElementById('description').readOnly = true;
     document.getElementById('dateLodged').readOnly = true;
     document.getElementById('dateApproved').readOnly = true;
@@ -326,7 +394,6 @@ window.App = {
         document.getElementById('daid').readOnly = false;
         document.getElementById('ecost').readOnly = false;
         document.getElementById('lga').readOnly = false;
-        document.getElementById('attachments').readOnly = false;
         document.getElementById('description').readOnly = false;
         document.getElementById('dateLodged').readOnly = false;
         document.getElementById('dateApproved').readOnly = false;
@@ -345,7 +412,7 @@ window.App = {
         document.getElementById('dateLodged').readOnly = false;
         document.getElementById('dateApproved').readOnly = false;
         break;
-      case "PlanLodged":
+      case "PlanApprove":
         App.hideDiv();
         document.getElementById('daid').readOnly = false;
         document.getElementById('description').readOnly = false;
@@ -354,8 +421,13 @@ window.App = {
         break;
       default:
         {
-          console.log("Error status not implimented.");
-          self.setStatus("Error status not implimented.");
+          App.hideDiv();
+          document.getElementById('daid').readOnly = false;
+          document.getElementById('ecost').readOnly = true;
+          document.getElementById('lga').readOnly = true;
+          document.getElementById('description').readOnly = true;
+          document.getElementById('dateLodged').readOnly = true;
+          document.getElementById('dateApproved').readOnly = true;
         }
     }
   },

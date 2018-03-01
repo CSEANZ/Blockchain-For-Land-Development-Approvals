@@ -55,15 +55,19 @@
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">Approve Development Application</h1>
           </div>
-          <form>
+          <form id="mainForm">
             <div class="form-group row">
               <label for="states" class="col-sm-2 col-form-label">Application Status</label>
               <div class="col-sm-10">
                 <select size="4" id="states" onchange="App.showDiv(this)">
                   <option value="DALodged">DALodged</option>
+                  <option value="DAApproved">DAApproved</option>
                   <option value="CCLodged">CCLodged</option>
+                  <option value="CCApproved">CCApproved</option>
                   <option value="SCLodged">SCLodged</option>
-                  <option value="PlanLodged">PlanLodged</option>
+                  <option value="SCApproved">SCApproved</option>
+                  <option value="PlanApprove">PlanApprove</option>
+                  <option value="PlanRegistered">PlanRegistered</option>
                 </select>
               </div>
             </div>
@@ -115,16 +119,19 @@
                 </div>
               </div>
               <div class="form-group">
-                <button type="button" class="btn btn-outline-secondary" id="add-new-attachments">Add new attachments</button>
-              </div>
+                  <button type="button" class="btn btn-outline-secondary" id="add-new-attachments">Add new attachments</button>
+                </div>               
             </div>
+
+
             <div class="form-group row">
               <label for="status" class="col-sm-2 col-form-label">Status</label>
               <span id="status"></span>
             </div>
             <div class="form-group row">
               <div class="col-sm-10">
-                <button type="submit" class="btn btn-primary" onclick="App.approveDA()">Lodge</button>
+                <button type="button" class="btn btn-primary" onclick="App.approveDA()">Approve</button>
+                <button type="button" class="btn btn-secondary" onclick="App.clear()">Clear</button>
               </div>
             </div>
           </form>
