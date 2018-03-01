@@ -1,5 +1,6 @@
 // Import the page's CSS. Webpack will know what to do with it.
 import "../stylesheets/app.css";
+import "../stylesheets/main.css";
 
 // Import libraries we need.
 import { default as Web3 } from 'web3';
@@ -78,25 +79,7 @@ window.App = {
     reader.readAsArrayBuffer(file);
   },
 
-  fetchAllImages: function() {
-    localforage.getItem('myStorage').then(function(value) {
-      var html = "";
-      if(value == null) 
-        html += '<li class="list-group-item">No items</li>';
-      else {
-        value.sort(function(x, y){
-          return y.timestamp - x.timestamp;
-        });
-        for(var i = 0; i < value.length; i++) {
-          html += '<li class="list-group-item"><a class="text-secondary" href="' + value[i].url + '" download="true"><i class="fas fa-download"></i></a>&nbsp;&nbsp;' + value[i].fileName + '<span class="float-right"> <i class="far fa-clock"></i> ' + new Date(value[i].timestamp*1000).toUTCString() + '</span></li>';
-        }
-      }
-      $$('#view-app-list').html(html);
-    }).catch(function(err) {
-        console.log(err);
-    });			
-  },
-  
+
   attchmentField: '<div class="form-group"><label for="attachments">Attachment</label> <a href="javascript:void(0)" class="remove-attachment small">remove</a><div class="input-group mb-3"><input type="file" class="form-control" placeholder="Attachment" name="attachments[]"><div class="input-group-append"><button class="btn btn-outline-secondary upload-attachment" type="button">Upload</button></div></div></div>',
 
   attachEvents: function () {
@@ -177,6 +160,11 @@ window.App = {
       });
   },
 
+  clear: function() {
+    document.getElementById("newapp").reset();
+    document.getElementById("status").value = "";
+  },
+
   submitDADetails: function () {
     var self = this;
     var daid = document.getElementById("daid").value;
@@ -192,34 +180,64 @@ window.App = {
 
     DaRegister.deployed().then(function (instance) {
       daRegister = instance;
+      console.log("createDA");
+      self.setStatus("creating Development Application");
       return daRegister.createDA(daid, dateLodgedInUnixTimestamp, description, lga, { from: account });
-    }).then(function () {
-      self.setStatus("Transaction complete!");
-    }).catch(function (e) {
-      console.log(e);
-      self.setStatus("Error creating DA");
+    }).then(function (result) {
+      console.log("created createDA");
+      self.setStatus("created Development Application");
+      return daRegister.getDADetailsAddress.call(daid, { from: account });
+      }).then(function (result2) {
+        console.log("got address: " + result2);
+        self.setStatus("retrieving Attachments");
+        var address = result2.valueOf();
+        return DaDetails.at(address).then(function (details) {
+          console.log("got details: " + details);
+
+         return localforage.getItem('myStorage').then(function (storage) {
+
+          self.setStatus("Adding " + storage.length + " Attachments...");
+          console.log("got storage: " + storage.length);
+          storage.sort(function (x, y) {
+             return y.timestamp - x.timestamp;
+           });
+          
+           for (var i = 0; i < storage.length; i++) {
+             details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
+              console.log("addAttachment " + i + ": " + result5);
+             });
+           }
+
+           localforage.removeItem('myStorage').then(function (result6) {
+            console.log("clear local storage");
+           });
+
+           self.setStatus("Finished creating Development Application - Press Clear");
+
+        });
     });
+  });
   },
 
   approveDA: function () {
     var self = this;
     var daid = document.getElementById("daid").value;
-    var description = document.getElementById("description").value;
-    var dateLodged = document.getElementById("dateLodged").value;
-    let lodgedDate = (new Date(dateLodged)).getTime();
-    let dateLodgedInUnixTimestamp = lodgedDate / 1000;
+    // var description = document.getElementById("description").value;
+    // var dateLodged = document.getElementById("dateLodged").value;
+    // let lodgedDate = (new Date(dateLodged)).getTime();
+    // let dateLodgedInUnixTimestamp = lodgedDate / 1000;
 
-    var lga = document.getElementById("lga").value;
-    var status = document.getElementById("states").value;
-    var estimatedcost = document.getElementById("ecost").value;
+    // var lga = document.getElementById("lga").value;
+    // var status = document.getElementById("states").value;
+    // var estimatedcost = document.getElementById("ecost").value;
 
-    var dateApproved = document.getElementById("dateApproved").value;
-    let approvedDate = (new Date(dateApproved)).getTime();
-    let dateApprovedInUnixTimestamp = approvedDate / 1000;
-    var applicant;
+    // var dateApproved = document.getElementById("dateApproved").value;
+    // let approvedDate = (new Date(dateApproved)).getTime();
+    // let dateApprovedInUnixTimestamp = approvedDate / 1000;
+    // var applicant;
 
 
-    self.setStatus("Initiating transaction... (please wait)");
+    // self.setStatus("Initiating transaction... (please wait)");
 
     var daRegister;
     DaRegister.deployed()
