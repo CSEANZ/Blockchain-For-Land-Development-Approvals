@@ -71,7 +71,7 @@ window.App = {
     DaRegister.deployed()
       .then(function (instance) {
         daRegister = instance;
-        return daRegister.getDARegisterAddress.call(daid, { from: account });
+        return daRegister.getDADetailsAddress.call(daid, { from: account });
       })
       .then(function (value) {
         var address = value.valueOf();
