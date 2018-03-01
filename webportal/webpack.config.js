@@ -4,7 +4,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry:  {
     app: ['./app/javascripts/app.js'],
-    view: ['./app/javascripts/view.js']
+    view: ['./app/javascripts/view.js'],
+    map: ['./app/javascripts/map.js']
   },
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -16,7 +17,8 @@ module.exports = {
       { from: './app/index.html', to: "index.html" },
       { from: './app/new-app.html', to: "new-app.html" },
       { from: './app/view-app.html', to: "view-app.html" },
-      { from: './app/approve-app.html', to: "approve-app.html" }
+      { from: './app/approve-app.html', to: "approve-app.html" },
+      { from: './app/ldviewer.html', to: "ldviewer.html" }
     ])
   ],
   module: {
