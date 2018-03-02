@@ -69,8 +69,8 @@ contract DADetails {
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
 
-    uint[] public eventLogIds;
-    mapping (uint => EventLog) eventLogs;
+    string[] public eventLogIds;
+    mapping (string => EventLog) eventLogs;
 
     // contract states
     enum ContractStates {DALodged, DAApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
@@ -262,32 +262,6 @@ contract DADetails {
         return attachment.uploadedBy;
     }
 
-    // convert a bytes32 into a string
-    function bytes32ToString (bytes32 data) returns (string) {
-        bytes memory bytesString = new bytes(32);
-        for (uint j=0; j<32; j++) {
-            byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-            if (char != 0) {
-                bytesString[j] = char;
-            }
-        }
-        return string(bytesString);
-    }
-
-    // convert uint to Bytes
-    function uintToBytes(uint v) constant returns (bytes32 ret) {
-        if (v == 0) {
-            ret = "0";
-        } else {
-            while (v > 0) {
-                ret = bytes32(uint(ret) / (2 ** 8));
-                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
-                v /= 10;
-            }
-        }
-        return ret;
-    }
-
     // Concate string
     function strConcat(string _a, string _b, string _c) internal returns (string) {
         bytes memory _ba = bytes(_a);
@@ -308,56 +282,64 @@ contract DADetails {
         return string(babcde);
     }
 
+    function uintToString(uint v) constant returns (string) {
+        if (v==0) {
+            return "0";
+        }           
+        uint maxlength = 100;
+        bytes memory reversed = new bytes(maxlength);
+        uint i = 0;
+        while (v != 0) {
+            uint remainder = v % 10;
+            v = v / 10;
+            reversed[i++] = byte(48 + remainder);
+        }
+        bytes memory s = new bytes(i);
+        for (uint j = 0; j < i; j++) {
+            s[j] = reversed[i - 1 - j];
+        }
+        return string(s);
+    }
 
-    function addEventLog(string _party, string _description, string _ipfsHash) public returns(uint) {
+
+    function addEventLog(string _party, string _description, string _ipfsHash) public returns(string) {
         
-        var eventLogId = eventId++;
-
-        // var eventLogId = "test0";
-        var eventLog = EventLog(123456, _party, _description, _ipfsHash);
-        // var eventLog = eventLogs[eventLogId];
-        // bytes32ToString(bytes32(eventLogIds.length))
-        // eventLog.date = now;
-        // eventLog.party = _party;
-        // eventLog.description = _description;
-        // eventLog.ipfsHash = _ipfsHash;
+        var length = uintToString(getEventLogsCount());
+        var eventLogId = strConcat(daid, "_", length);
+        var eventLog = EventLog(now, _party, _description, _ipfsHash);
 
         eventLogIds.push(eventLogId);
-        
+
         eventLogs[eventLogId] = eventLog;
-        //return string(eventLogId);
+
         return eventLogId;
     }
 
-    function getEventLogPartyById(uint eventLogId) public view returns(string) {
+    function getEventLogPartyById(string eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.party;
     }
 
-    function getEventLogDateById(uint eventLogId) public view returns(uint) {
+    function getEventLogDateById(string eventLogId) public view returns(uint) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.date;
     }
 
-    function getEventLogDescriptionById(uint eventLogId) public view returns(string) {
+    function getEventLogDescriptionById(string eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.description;
     }
 
-    function getEventLogIpfsHashById(uint eventLogId) public view returns(string) {
+    function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.ipfsHash;
     }
 
-    function getEventLogId(uint256 index) public view returns(uint) {
+    function getEventLogId(uint256 index) public view returns(string) {
         return eventLogIds[index];
     }
 
     function getEventLogsCount() public view returns (uint256) {
         return eventLogIds.length;
-    }
-
-    function getEventLogById(uint eventLogId) public view returns(EventLog) {
-        return eventLogs[eventLogId];
     }
 }

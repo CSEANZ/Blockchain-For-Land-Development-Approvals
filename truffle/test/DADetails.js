@@ -104,7 +104,7 @@ contract('DADetails', function (accounts) {
 
     console.log("Adding first event", await daDetails.addEventLog("party1", "desc1", "ipfs1"));
 
-    // console.log("adding second event", await daDetails.addEventLog("party2", "desc2", "ipfs2"));
+    console.log("adding second event", await daDetails.addEventLog("party2", "desc2", "ipfs2"));
     /*
     //var eventlogid3 = await daDetails.addEventLog("party3", "efg", "efgsfa");
     console.log("EVENTLOG DEBUG:===========");
