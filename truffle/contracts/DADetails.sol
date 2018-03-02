@@ -23,7 +23,11 @@ contract DADetails {
     // ... all the state changes ...
 
 
+
     // FIELDS
+
+    uint eventId;
+
     address public applicant;
     string public daid;
     uint public dateLodged;
@@ -65,8 +69,8 @@ contract DADetails {
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
 
-    string[] public eventLogIds;
-    mapping (string => EventLog) eventLogs;
+    uint[] public eventLogIds;
+    mapping (uint => EventLog) eventLogs;
 
     // contract states
     enum ContractStates {DALodged, DAApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
@@ -305,9 +309,10 @@ contract DADetails {
     }
 
 
-    function addEventLog(string _party, string _description, string _ipfsHash) public returns(string) {
+    function addEventLog(string _party, string _description, string _ipfsHash) public returns(uint) {
         
-        var eventLogId = strConcat("test", "", bytes32ToString(uintToBytes(eventLogIds.length)));
+        var eventLogId = eventId++;
+
         // var eventLogId = "test0";
         var eventLog = EventLog(123456, _party, _description, _ipfsHash);
         // var eventLog = eventLogs[eventLogId];
@@ -324,27 +329,27 @@ contract DADetails {
         return eventLogId;
     }
 
-    function getEventLogPartyById(string eventLogId) public view returns(string) {
+    function getEventLogPartyById(uint eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.party;
     }
 
-    function getEventLogDateById(string eventLogId) public view returns(uint) {
+    function getEventLogDateById(uint eventLogId) public view returns(uint) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.date;
     }
 
-    function getEventLogDescriptionById(string eventLogId) public view returns(string) {
+    function getEventLogDescriptionById(uint eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.description;
     }
 
-    function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
+    function getEventLogIpfsHashById(uint eventLogId) public view returns(string) {
         var eventLog = eventLogs[eventLogId];
         return eventLog.ipfsHash;
     }
 
-    function getEventLogId(uint256 index) public view returns(string) {
+    function getEventLogId(uint256 index) public view returns(uint) {
         return eventLogIds[index];
     }
 
@@ -352,7 +357,7 @@ contract DADetails {
         return eventLogIds.length;
     }
 
-    function getEventLogById(string eventLogId) public view returns(EventLog) {
+    function getEventLogById(uint eventLogId) public view returns(EventLog) {
         return eventLogs[eventLogId];
     }
 }
