@@ -23,7 +23,11 @@ contract DADetails {
     // ... all the state changes ...
 
 
+
     // FIELDS
+
+    uint eventId;
+
     address public applicant;
     string public daid;
     uint public dateLodged;
@@ -258,32 +262,6 @@ contract DADetails {
         return attachment.uploadedBy;
     }
 
-    // convert a bytes32 into a string
-    function bytes32ToString (bytes32 data) returns (string) {
-        bytes memory bytesString = new bytes(32);
-        for (uint j=0; j<32; j++) {
-            byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-            if (char != 0) {
-                bytesString[j] = char;
-            }
-        }
-        return string(bytesString);
-    }
-
-    // convert uint to Bytes
-    function uintToBytes(uint v) constant returns (bytes32 ret) {
-        if (v == 0) {
-            ret = "0";
-        } else {
-            while (v > 0) {
-                ret = bytes32(uint(ret) / (2 ** 8));
-                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
-                v /= 10;
-            }
-        }
-        return ret;
-    }
-
     // Concate string
     function strConcat(string _a, string _b, string _c) internal returns (string) {
         bytes memory _ba = bytes(_a);
@@ -326,7 +304,6 @@ contract DADetails {
 
     function addEventLog(string _party, string _description, string _ipfsHash) public returns(string) {
         
-        //var eventLogId = strConcat("test", "", bytes32ToString(uintToBytes(eventLogIds.length)));
         var length = uintToString(getEventLogsCount());
         var eventLogId = strConcat(daid, "_", length);
         var eventLog = EventLog(now, _party, _description, _ipfsHash);
