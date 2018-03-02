@@ -94,15 +94,20 @@ contract('DADetails', function (accounts) {
   */
  
   it("should change add event logs and print the logs", async () => {
-    var daId = "DAID";
+    var daId = "daid";
     var dateLodged = "123456";
     var description = "Test geographic file types";
     var lga ="BCC";
 
     var daDetails = await DADetails.new(daId, dateLodged, description, lga);
-    daDetails.addEventLog("1111", "abc", "abc", "abcdc");
-    daDetails.addEventLog("2222", "efg", "efg", "efgsfa");
-    daDetails.addEventLog("3333", "efg", "efg", "efgsfa");
+    var eventlogid1 = await daDetails.addEventLog("party1", "abc", "abcdc");
+    var eventlogid2 = await daDetails.addEventLog("party2", "efg", "efgsfa");
+    var eventlogid3 = await daDetails.addEventLog("party3", "efg", "efgsfa");
+    console.log("EVENTLOG DEBUG:===========");
+    console.log(eventlogid1);
+    console.log(eventlogid2);
+    console.log(eventlogid3);
+    console.log("END EVENTLOG DEBUG:===========");
     
     //console.log("2nd EVENTNUMBER:");
     //console.log(await daDetails.getEventLogsCount());
