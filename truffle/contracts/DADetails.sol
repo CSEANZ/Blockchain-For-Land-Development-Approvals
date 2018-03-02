@@ -304,23 +304,37 @@ contract DADetails {
         return string(babcde);
     }
 
+    function uintToString(uint v) constant returns (string) {
+        if (v==0) {
+            return "0";
+        }           
+        uint maxlength = 100;
+        bytes memory reversed = new bytes(maxlength);
+        uint i = 0;
+        while (v != 0) {
+            uint remainder = v % 10;
+            v = v / 10;
+            reversed[i++] = byte(48 + remainder);
+        }
+        bytes memory s = new bytes(i);
+        for (uint j = 0; j < i; j++) {
+            s[j] = reversed[i - 1 - j];
+        }
+        return string(s);
+    }
+
 
     function addEventLog(string _party, string _description, string _ipfsHash) public returns(string) {
         
-        var eventLogId = strConcat("test", "", bytes32ToString(uintToBytes(eventLogIds.length)));
-        // var eventLogId = "test0";
-        var eventLog = EventLog(123456, _party, _description, _ipfsHash);
-        // var eventLog = eventLogs[eventLogId];
-        // bytes32ToString(bytes32(eventLogIds.length))
-        // eventLog.date = now;
-        // eventLog.party = _party;
-        // eventLog.description = _description;
-        // eventLog.ipfsHash = _ipfsHash;
+        //var eventLogId = strConcat("test", "", bytes32ToString(uintToBytes(eventLogIds.length)));
+        var length = uintToString(getEventLogsCount());
+        var eventLogId = strConcat(daid, "_", length);
+        var eventLog = EventLog(now, _party, _description, _ipfsHash);
 
         eventLogIds.push(eventLogId);
-        
+
         eventLogs[eventLogId] = eventLog;
-        //return string(eventLogId);
+
         return eventLogId;
     }
 
@@ -350,9 +364,5 @@ contract DADetails {
 
     function getEventLogsCount() public view returns (uint256) {
         return eventLogIds.length;
-    }
-
-    function getEventLogById(string eventLogId) public view returns(EventLog) {
-        return eventLogs[eventLogId];
     }
 }
