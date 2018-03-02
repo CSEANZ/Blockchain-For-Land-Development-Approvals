@@ -305,21 +305,43 @@ contract DADetails {
     }
 
 
-    function addEventLog(string party, string description, string ipfsHash) public returns (string) {
-        EventLog eventLog;
+    function addEventLog(string _party, string _description, string _ipfsHash) public returns(string) {
+        
+        var eventLogId = strConcat("test", "", bytes32ToString(uintToBytes(eventLogIds.length)));
+        // var eventLogId = "test0";
+        var eventLog = EventLog(123456, _party, _description, _ipfsHash);
+        // var eventLog = eventLogs[eventLogId];
         // bytes32ToString(bytes32(eventLogIds.length))
-        var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
+        // eventLog.date = now;
+        // eventLog.party = _party;
+        // eventLog.description = _description;
+        // eventLog.ipfsHash = _ipfsHash;
+
         eventLogIds.push(eventLogId);
-        eventLog.date = now;
-        eventLog.party = party;
-        eventLog.description = description;
-        eventLog.ipfsHash = ipfsHash;
+        
         eventLogs[eventLogId] = eventLog;
-        return string(eventLogId);
+        //return string(eventLogId);
+        return eventLogId;
     }
 
-    function getEventLogById(string eventLogId) public view returns(EventLog) {
-        return eventLogs[eventLogId];
+    function getEventLogPartyById(string eventLogId) public view returns(string) {
+        var eventLog = eventLogs[eventLogId];
+        return eventLog.party;
+    }
+
+    function getEventLogDateById(string eventLogId) public view returns(uint) {
+        var eventLog = eventLogs[eventLogId];
+        return eventLog.date;
+    }
+
+    function getEventLogDescriptionById(string eventLogId) public view returns(string) {
+        var eventLog = eventLogs[eventLogId];
+        return eventLog.description;
+    }
+
+    function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
+        var eventLog = eventLogs[eventLogId];
+        return eventLog.ipfsHash;
     }
 
     function getEventLogId(uint256 index) public view returns(string) {
@@ -328,5 +350,9 @@ contract DADetails {
 
     function getEventLogsCount() public view returns (uint256) {
         return eventLogIds.length;
+    }
+
+    function getEventLogById(string eventLogId) public view returns(EventLog) {
+        return eventLogs[eventLogId];
     }
 }
