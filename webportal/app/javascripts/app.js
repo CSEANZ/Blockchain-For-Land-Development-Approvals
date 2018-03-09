@@ -8,7 +8,7 @@ import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
 import daRegister_artifacts from '../../../truffle/build/contracts/DARegister.json'
-import daDetails_artifacts from '../../../truffle/build/contracts/DADetails.json'
+import daDetails_artifacts from '../../../truffle/build/contracts/DAContract.json'
 
 var DaRegister = contract(daRegister_artifacts);
 var DaDetails = contract(daDetails_artifacts);
@@ -126,7 +126,7 @@ window.App = {
 
   getDARegisterAddress: function () {
     var self = this;
-
+    var events = [];
     var daid = document.getElementById("searchdaid").value;
     var daRegister;
     DaRegister.deployed()
@@ -137,22 +137,112 @@ window.App = {
       .then(function (value) {
         var address = value.valueOf();
         return DaDetails.at(address).then(function (details) {
+
+          // recursive: function(counter) {
+          //   var that = this;
+          //   if(counter > 0) {
+          //     details.getFileName().then(function(fileName) {
+          //       deetails.getFileType(fileName).then(function(fileType) {
+          //         details.getLatestIpfsHash(fileName).then(function(hash) {
+          //           that.html += '<li class="list-group-item">File name: '+fileName +' File type: '+fileType +' File hash:'+ hash +'</li>';
+          //           that.recursive(counter-1);
+          //         });	
+          //       });	
+          //     });
+          //   } else {
+          //     $$('#view-app-list').html(html);
+          //   }
+          // }
+
+          details.getFileNamesCount().then(function (count) {
+            var html = "";
+            for (var i = 0; i < count.toNumber(); i++) {
+
+              details.getFileName(i).then(function (fileName) {
+                details.getFileType(fileName).then(function (fileType) {
+                  details.getLatestIpfsHash(fileName).then(function (hash) {
+                    html += '<li class="list-group-item">File name: ' + fileName + ' File type: ' + fileType + ' File hash:' + hash + '</li>';
+                    $$('#view-app-list').html(html);
+                  }).catch(function (e) {
+                    console.log("1 " + e);
+                    self.setStatus("Error getting da; see log.");
+                  });
+                }).catch(function (e) {
+                  console.log("2 " + e);
+                  self.setStatus("Error getting da; see log.");
+                });
+              }).catch(function (e) {
+                console.log("3 " + e);
+                self.setStatus("Error getting da; see log.");
+              });
+            };
+
+
+          }).catch(function (e) {
+            console.log("4 " + e);;
+            self.setStatus("Error getting da; see log.");
+          });
+
+          // details.getChangeCount().then(function (count1) {
+
+          //   var html2 = "";
+          //   if (count1 == null) {
+          //     html2 += '<li class="list-group-item">No events</li>';
+          //   } else {
+
+          //     // html2 += '<li class="list-group-item">' + count + ' events found</li>';
+
+          //     //for (var i = 0; i < count.toNumber(); i++) {
+          //     //details.getEventLogDescById().then(function (desc) {
+          //     html2 += '<li class="list-group-item">' + count1 + '<span class="float-right"> <i class="far fa-clock"></i> ' + 'desc' + '</span></li>';
+          //     $$('#view-app-events').html(html2);
+          //     //});
+          //     //};
+          //   }
+
+          // }).catch(function (e) {
+          //   console.log("5 " + e);
+          //   self.setStatus("Error getting da; see log.");
+          // });
+
           details.daid().then(function (daid) {
             document.getElementById("daid").value = daid;
+          }).catch(function (e) {
+            console.log("6 " + e);
+            self.setStatus("Error getting da; see log.");
           });
           details.dateLodged().then(function (dateLodged) {
             document.getElementById("dateLodged").value = new Date(dateLodged * 1000).toLocaleDateString();
+          }).catch(function (e) {
+            console.log("7 " + e);
+            self.setStatus("Error getting da; see log.");
           });
           details.description().then(function (desc) {
             document.getElementById("description").value = desc;
+          }).catch(function (e) {
+            console.log("8 " + e);
+            self.setStatus("Error getting da; see log.");
           });
-          details.lga().then(function (lga) {
-            document.getElementById("lga").value = lga;
+          details.estimatedCost().then(function (ecost) {
+            document.getElementById("ecost").value = ecost;
+          }).catch(function (e) {
+            console.log("9 " + e);
+            self.setStatus("Error getting da; see log.");
           });
 
+          details.lga().then(function (lga) {
+            document.getElementById("lga").value = lga;
+          }).catch(function (e) {
+            console.log("10 " + e);
+            self.setStatus("Error getting da; see log.");
+          });
+
+        }).catch(function (e) {
+          console.log("11 " + e);
+          self.setStatus("Error getting da; see log.");
         });
       }).catch(function (e) {
-        console.log(e);
+        console.log("12 " + e);
         self.setStatus("Error getting da; see log.");
       });
   },
@@ -166,6 +256,7 @@ window.App = {
     var daid = document.getElementById("daid").value;
     var description = document.getElementById("description").value;
     var dateLodged = document.getElementById("dateLodged").value;
+    var estimatedCost = document.getElementById("ecost").value;
     let date = (new Date(dateLodged)).getTime();
 
     let dateLodgedInUnixTimestamp = date / 1000;
@@ -178,7 +269,7 @@ window.App = {
       daRegister = instance;
       console.log("createDA");
       self.setStatus("creating Development Application");
-      return daRegister.createDA(daid, dateLodgedInUnixTimestamp, description, lga, { from: account });
+      return daRegister.createDA(daid, dateLodgedInUnixTimestamp, description, lga, estimatedCost, { from: account });
     }).then(function (result) {
       console.log("created createDA");
       self.setStatus("created Development Application");
@@ -190,27 +281,43 @@ window.App = {
       return DaDetails.at(address).then(function (details) {
         console.log("got details: " + details);
 
-        return localforage.getItem('myStorage').then(function (storage) {
-
-          self.setStatus("Adding " + storage.length + " Attachments...");
-          console.log("got storage: " + storage.length);
-          storage.sort(function (x, y) {
-            return y.timestamp - x.timestamp;
-          });
-
-          for (var i = 0; i < storage.length; i++) {
-            details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
-              console.log("addAttachment " + i + ": " + result5);
-            });
-          }
-
-          localforage.removeItem('myStorage').then(function (result6) {
-            console.log("clear local storage");
-          });
-
-          self.setStatus("Finished creating Development Application - Press Clear");
-
+        self.addAttachments(details).then(function () {
+          self.setStatus("DALodge Transaction complete!");
         });
+
+        // if (typeof storage == 'undefined') {
+
+        //   self.addAttachments(details).then(function () {
+        //     self.setStatus("DALodge Transaction complete!");
+        //   });
+
+        //   return localforage.getItem('myStorage').then(function (storage) {
+
+        //     if (typeof storage == 'undefined') {
+        //       self.setStatus("Adding " + storage.length + " Attachments...");
+        //       console.log("got storage: " + storage.length);
+        //       storage.sort(function (x, y) {
+        //         return y.timestamp - x.timestamp;
+        //       });
+
+        //       for (var i = 0; i < storage.length; i++) {
+        //         details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
+        //           console.log("addAttachment " + i + ": " + result5);
+        //         });
+        //       }
+
+        //       localforage.removeItem('myStorage').then(function (result6) {
+        //         console.log("clear local storage");
+        //       });
+        //     }
+
+        //     self.setStatus("Finished creating Development Application - Press Clear");
+
+        //   });
+        // }
+
+        self.setStatus("Finished creating Development Application - Press Clear");
+
       });
     });
   },
@@ -258,6 +365,7 @@ window.App = {
             break;
           case "DAApproved":
             return details.DAApprove(true, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("DAApprove Transaction complete!");
@@ -269,6 +377,7 @@ window.App = {
             break;
           case "CCLodged":
             return details.CCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("CCLodge Transaction complete!");
@@ -280,6 +389,7 @@ window.App = {
             break;
           case "CCApproved":
             return details.CCApprove(true, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("CCApprove Transaction complete!");
@@ -291,6 +401,7 @@ window.App = {
             break;
           case "SCLodged":
             return details.SCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("SCLodge Transaction complete!");
@@ -302,6 +413,7 @@ window.App = {
             break;
           case "SCApproved":
             return details.SCApprove(true, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("SCApprove Transaction complete!");
@@ -313,6 +425,7 @@ window.App = {
             break;
           case "PlanApprove":
             return details.PlanApprove(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("PlanApprove Transaction complete!");
@@ -324,6 +437,7 @@ window.App = {
             break;
           case "PlanRegistered":
             return details.PlanRegistered(true, { from: account })
+
               .then(function () {
                 self.addAttachments(details).then(function () {
                   self.setStatus("PlanRegistered Transaction complete!");
@@ -358,19 +472,24 @@ window.App = {
         });
 
         for (var i = 0; i < storage.length; i++) {
-          details.addAttachment(storage[i].fileName, storage[i].fileType, account, storage[i].url, { from: account }).then(function (result5) {
+          var filename = storage[i].fileName;
+          var fileType = storage[i].fileType;
+          var url = storage[i].url;
+
+          details.addAttachment(fileName, fileType, account, url, { from: account }).then(function (result5) {
             console.log("addAttachment " + i + ": " + result5);
+            details.addEventLog(fileName, { from: account}).then(function(added) { 
+              console.log("added log " + added);
+            });
           });
         }
-
-        localforage.removeItem('myStorage').then(function (result6) {
+        localforage.removeItem('myStorage').then(function (result8) {
           console.log("clear local storage");
         });
 
         // self.setStatus("Finished creating Development Application - Press Clear");
       }
     });
-
   },
 
   setStatus: function (message) {
