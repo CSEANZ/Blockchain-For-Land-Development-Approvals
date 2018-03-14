@@ -3,7 +3,8 @@
 
 <head>
   <title>Development Application - Blockchain POC Frontend</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
   <script src="./app.js"></script>
 </head>
 
@@ -13,7 +14,7 @@
     <input class="form-control form-control-dark w-100" type="text" id="searchdaid" placeholder="Search" aria-label="Search">
     <ul class="navbar-nav px-3">
       <li class="nav-item text-nowrap">
-        <a class="nav-link" href="javascript:App.getDARegisterAddress();">Search</a>
+        <a class="nav-link" href="javascript:App.viewDA();">Search</a>
       </li>
     </ul>
   </nav>
@@ -87,13 +88,15 @@
             </div>
             <div class="form-group row">
               <label for="state" class="col-sm-2 col-form-label">State</label>
-              <span id="state"></span>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="state" readonly>
+              </div>
             </div>
             <div class="form-group row">
               <label for="status" class="col-sm-2 col-form-label">Status</label>
               <span id="status"></span>
             </div>
-            
+
             <div id="attachments">
               <div class="form-group">
                 <label for="attachments">Attachment</label>
@@ -107,22 +110,20 @@
               </div>
             </div>
 
-
-                         
             <div id="events">
               <div class="form-group">
                 <label for="events">Events</label>
                 <div class="col-md-10 col-sm-12 float-right" id="right-aside">
                   <div class="content">
                     <ul class="list-group" id="view-app-events">
-                      <li class="list-group-item">Loading...</li>
+                      <li class="list-group-item"></li>
                     </ul>
                   </div>
                 </div>
               </div>
-            </div> 
+            </div>
 
-            
+
           </form>
         </div>
       </main>

@@ -1,5 +1,7 @@
 pragma solidity ^0.4.18;
-import "./DAContract.sol";
+
+import "./DADetails.sol";
+
 contract DARegister {
 
     // FIELDS
@@ -28,7 +30,7 @@ contract DARegister {
     }
 
     function createDA (string _daId, uint _dateLodged, string _description, string _lga, uint _estimatedCost) public {
-        var daDetails = new DAContract(_daId, _dateLodged, _description, _lga, _estimatedCost);
+        var daDetails = new DADetails(_daId, _dateLodged, _description, _lga, _estimatedCost);
         registerDA(_daId, daDetails);
 
     }

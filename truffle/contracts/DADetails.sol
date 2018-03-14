@@ -10,10 +10,12 @@ contract DADetails {
         address uploadedBy;
     }
 
-    struct ChangeEvent {
-        string cdaid;
-        string ctitle;
-        mapping (string => FileAttachment) cattachments;
+    struct EventLog {
+        string eventLogId;
+        string eventTitle;
+        string eventSubject;
+        string eventBy;
+        uint eventDate;
     }
 
     // EVENTS
@@ -22,7 +24,7 @@ contract DADetails {
 
 
     // FIELDS
-    address public applicant;
+    
     string public daid;
     uint public dateLodged;
     uint public dateApproved;
@@ -31,6 +33,8 @@ contract DADetails {
     string public description;
     uint public estimatedCost;
     string public lga;
+    
+    address public applicant;
     
     // construction certificate lodge date
     uint public ccDateLodged;
@@ -63,13 +67,16 @@ contract DADetails {
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
 
-    uint public numberChanges;
-    uint[] public changeIndex; 
-    mapping (uint => ChangeEvent) changeEvents;
+    string[] public eventLogIds;
+    mapping (string => EventLog) eventLogs;
 
     // contract states
     enum ContractStates {DALodged, DAApproved, CCLodged, CCApproved, SCLodged, SCApproved, PlanLodged, PlanRegistered }
     ContractStates public State;
+
+
+    // statechangedevents[]
+
 
     // CONSTRUCTOR
     function DADetails (string _daId, uint _dateLodged, string _description, string _lga, uint _estimatedCost) public {
@@ -96,6 +103,17 @@ contract DADetails {
 
 
     // function changes the state to DA lodged 
+    function DALodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
+        applicant = msg.sender;
+        daid = _daid;
+        dateLodged = _dateLodged;
+        description = _description;
+        lga = _lga;
+        estimatedCost = _estimatedcost;
+        dateApproved = _dateApproved;
+        ChangeState(ContractStates.DALodged);
+    }
+
 
      // function changes the state to DA Approved if current contract state is DA Lodged
     function DAApprove(bool DAApproveResult) public returns (bool) {
@@ -178,7 +196,7 @@ contract DADetails {
 
 
     // get the hash of all the geographic files associated with this contract
-    function getGeoFiles() public pure returns(string) {
+    function getGeoFiles() public view returns(string) {
         return "[]";
     }
 
@@ -195,25 +213,10 @@ contract DADetails {
         attachment.uploadedBy = uploadedBy;
         attachment.fileName = fileName;
         attachments[fileName] = attachment;
-        
-        changeIndex.push(numberChanges);
-        var changeEvent = changeEvents[numberChanges];
-        changeEvent.cdaid = daid;
-        changeEvent.ctitle = "FileAttachment";
-        var cattachment = changeEvent.cattachments[fileName];
-        cattachment = attachment;
-        changeEvent.cattachments[fileName] = cattachment;
-        changeEvents[numberChanges] = changeEvent;
-
-        return true;
     }
 
     function getFileNamesCount() public view returns(uint256) {
         return fileNames.length;
-    }
-
-    function getChangeCount() public view returns(uint256) {
-        return changeIndex.length;
     }
 
     function getFileName(uint256 index) public view returns(string) {
@@ -257,5 +260,114 @@ contract DADetails {
     function getUploadedBy(string fileName) public view returns(address) {
         var attachment = attachments[fileName];
         return attachment.uploadedBy;
+    }
+
+    // convert a bytes32 into a string
+    function bytes32ToString (bytes32 data) returns (string) {
+        bytes memory bytesString = new bytes(32);
+        for (uint j=0; j<32; j++) {
+            byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[j] = char;
+            }
+        }
+        return string(bytesString);
+    }
+
+    // convert uint to Bytes
+    function uintToBytes(uint v) constant returns (bytes32 ret) {
+        if (v == 0) {
+            ret = "0";
+        } else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+        return ret;
+    }
+
+    // Concate string
+    function strConcat(string _a, string _b, string _c) internal returns (string) {
+        bytes memory _ba = bytes(_a);
+        bytes memory _bb = bytes(_b);
+        bytes memory _bc = bytes(_c);
+        string memory abcde = new string(_ba.length + _bb.length + _bc.length);
+        bytes memory babcde = bytes(abcde);
+        uint k = 0;
+        for (uint i = 0; i < _ba.length; i++) {
+            babcde[k++] = _ba[i];
+        }
+        for (i = 0; i < _bb.length; i++) {
+            babcde[k++] = _bb[i];
+        }
+        for (i = 0; i < _bc.length; i++) {
+            babcde[k++] = _bc[i];
+        }
+        return string(babcde);
+    }
+
+
+    function addEventLog(string logString, string logSubject, string logBy, uint logDate) public returns (bool) {
+        var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
+        var eventlog = eventLogs[eventLogId];
+
+        eventLogIds.push(eventLogId);
+
+        eventlog.eventLogId = eventLogId;
+        eventlog.eventTitle = logString;
+        eventlog.eventSubject = logSubject;
+        eventlog.eventBy = logBy;
+        eventlog.eventDate = logDate;
+        
+        eventLogs[eventLogId] = eventlog;
+
+        return true;
+    }
+
+    function getEventLogById(string eventLogId) public view returns(EventLog) {
+        return eventLogs[eventLogId];
+    }
+
+    function getEventLogId(uint256 index) public view returns(string) {
+        return eventLogIds[index];
+    }
+
+    function getEventLogsCount() public view returns (uint256) {
+        return eventLogIds.length;
+    }
+
+    function getEventTitle(uint256 index) public view returns(string) {
+        var eventLog = eventLogs[eventLogIds[index]];
+        return eventLog.eventTitle;
+    } 
+
+    function getEventSubject(uint256 index) public view returns(string) {
+        var eventLog = eventLogs[eventLogIds[index]];
+        return eventLog.eventSubject;
+    } 
+
+    function getEventDate(uint256 index) public view returns(uint) {
+        var eventLog = eventLogs[eventLogIds[index]];
+        return eventLog.eventDate;
+    } 
+
+    function getEventLogString(uint256 index) public returns(string) {
+        var eventLog = eventLogs[eventLogIds[index]];
+        var returnString = strConcat(eventLog.eventTitle, "|", eventLog.eventSubject);
+        returnString = strConcat(returnString, "|", eventLog.eventBy);
+        returnString = strConcat(returnString, "|", bytes32ToString(uintToBytes(eventLog.eventDate)));
+        return returnString;
+    }
+
+    function getEventLogData(uint256 index) public constant returns(string, string, string, uint) {
+        var eventLog = eventLogs[eventLogIds[index]];
+        var title = eventLog.eventTitle;
+        var subject = eventLog.eventSubject;
+        var by = eventLog.eventBy;
+        var logDate = eventLog.eventDate;
+        
+        return (title, subject, by, logDate);
     }
 }
