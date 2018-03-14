@@ -63,7 +63,6 @@ contract DADetails {
     // Plan registered certificate description
     string public planRegisteredDescription;
 
-    // status: DALodged, DApproval
     string[] public fileNames; 
     mapping (string => FileAttachment) attachments;
 
@@ -86,12 +85,12 @@ contract DADetails {
         description = _description;
         lga = _lga;
         estimatedCost = _estimatedCost;
-        ChangeState(ContractStates.DALodged);
+        changeState(ContractStates.DALodged);
     }
 
     // METHODS
     // function change the state
-	function ChangeState(ContractStates newState) public {
+	function changeState(ContractStates newState) public {
 		State = newState;
 		StateChanged(newState);
 	}
@@ -103,7 +102,7 @@ contract DADetails {
 
 
     // function changes the state to DA lodged 
-    function DALodge (address _applicant, string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
+    function daLodge (string _daid, uint _dateLodged, string _description, string _lga, uint _estimatedcost, uint _dateApproved) public {
         applicant = msg.sender;
         daid = _daid;
         dateLodged = _dateLodged;
@@ -111,39 +110,39 @@ contract DADetails {
         lga = _lga;
         estimatedCost = _estimatedcost;
         dateApproved = _dateApproved;
-        ChangeState(ContractStates.DALodged);
+        changeState(ContractStates.DALodged);
     }
 
 
      // function changes the state to DA Approved if current contract state is DA Lodged
-    function DAApprove(bool DAApproveResult) public returns (bool) {
+    function daApprove(bool daApproveResult) public returns (bool) {
 		require(State == ContractStates.DALodged);
 		
-		if(DAApproveResult) {
-			ChangeState(ContractStates.DAApproved);
+		if (daApproveResult) {
+			changeState(ContractStates.DAApproved);
 		} 
 
     return true;
 	}
 
      // function changes the state to construction (CC) lodged if current contract state is DAApproved approved
-    function CCLodge (uint _ccDateLodged, string _ccDescription, uint _ccDateApproved) public {      
+    function ccLodge (uint _ccDateLodged, string _ccDescription, uint _ccDateApproved) public {      
         require(State == ContractStates.DAApproved);   
        
         ccDateLodged = _ccDateLodged;
         ccDescription = _ccDescription;
         ccDateApproved = _ccDateApproved;
 
-        ChangeState(ContractStates.CCLodged);
+        changeState(ContractStates.CCLodged);
     }
 
 
     // function changes the state to construction (CC) approved if current contract state is construction (CC) lodged
-    function CCApprove(bool CCApproveResult) public returns (bool) {
+    function ccApprove(bool ccApproveResult) public returns (bool) {
 		require(State == ContractStates.CCLodged);
 		
-		if(CCApproveResult) {
-			ChangeState(ContractStates.CCApproved);
+		if (ccApproveResult) {
+			changeState(ContractStates.CCApproved);
 		} 
 
 	return true;
@@ -151,22 +150,22 @@ contract DADetails {
 
 
     // function changes the state to sub division (SC) lodged if current contract state is construction (CC) approved
-     function SCLodge (uint _sdcDateLodged, string _sdcDescription, uint _sdcDateApproved) public {
+     function scLodge (uint _sdcDateLodged, string _sdcDescription, uint _sdcDateApproved) public {
         require(State == ContractStates.CCApproved);
         
         sdcDateLodged = _sdcDateLodged;
         sdcDescription = _sdcDescription;
         sdcDateApproved = _sdcDateApproved;
 
-        ChangeState(ContractStates.SCLodged);
+        changeState(ContractStates.SCLodged);
     }
 
    // function changes the state to sub division (SC) approved if current contract state is sub division (SC) lodged
-    function SCApprove(bool SCApproveResult) public returns (bool) {
+    function scApprove(bool scApproveResult) public returns (bool) {
 		require(State == ContractStates.SCLodged);
 		
-		if(SCApproveResult) {
-			ChangeState(ContractStates.SCApproved);
+		if (scApproveResult) {
+			changeState(ContractStates.SCApproved);
 		} 
 
 	    return true;
@@ -174,29 +173,29 @@ contract DADetails {
 
 
     // function changes the state to Plan lodged if current contract state is sub divison approved
-     function PlanApprove (uint _planApproveDateLodged, string _planRegisteredDescription, uint _planRegisteredDateApproved) public {
+     function planApprove (uint _planApproveDateLodged, string _planRegisteredDescription, uint _planRegisteredDateApproved) public {
         require(State == ContractStates.SCApproved);
 
         planApproveDateLodged = _planApproveDateLodged;
         planRegisteredDateApproved = _planRegisteredDateApproved;
         planRegisteredDescription = _planRegisteredDescription;
 
-        ChangeState(ContractStates.PlanLodged);
+        changeState(ContractStates.PlanLodged);
     }
 
     // function changes the state to PlanRegistered if current contract state is Plan Lodged
-     function PlanRegister(bool PlanRegisteredResult) public returns (bool) {
+     function planRegister(bool planRegisteredResult) public returns (bool) {
 		require(State == ContractStates.PlanLodged);
 		
-		if (PlanRegisteredResult) {
-			ChangeState(ContractStates.PlanRegistered);
+		if (planRegisteredResult) {
+			changeState(ContractStates.PlanRegistered);
 		} 
 	    return true;
 	}
 
 
     // get the hash of all the geographic files associated with this contract
-    function getGeoFiles() public view returns(string) {
+    function getGeoFiles() public pure returns(string) {
         return "[]";
     }
 
@@ -263,9 +262,9 @@ contract DADetails {
     }
 
     // convert a bytes32 into a string
-    function bytes32ToString (bytes32 data) returns (string) {
+    function bytes32ToString (bytes32 data) private pure returns (string) {
         bytes memory bytesString = new bytes(32);
-        for (uint j=0; j<32; j++) {
+        for (uint j = 0; j < 32; j++) {
             byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
             if (char != 0) {
                 bytesString[j] = char;
@@ -275,7 +274,7 @@ contract DADetails {
     }
 
     // convert uint to Bytes
-    function uintToBytes(uint v) constant returns (bytes32 ret) {
+    function uintToBytes(uint v) private pure returns (bytes32 ret) {
         if (v == 0) {
             ret = "0";
         } else {
@@ -289,7 +288,7 @@ contract DADetails {
     }
 
     // Concate string
-    function strConcat(string _a, string _b, string _c) internal returns (string) {
+    function strConcat(string _a, string _b, string _c) internal pure returns (string) {
         bytes memory _ba = bytes(_a);
         bytes memory _bb = bytes(_b);
         bytes memory _bc = bytes(_c);
@@ -352,14 +351,6 @@ contract DADetails {
         var eventLog = eventLogs[eventLogIds[index]];
         return eventLog.eventDate;
     } 
-
-    function getEventLogString(uint256 index) public returns(string) {
-        var eventLog = eventLogs[eventLogIds[index]];
-        var returnString = strConcat(eventLog.eventTitle, "|", eventLog.eventSubject);
-        returnString = strConcat(returnString, "|", eventLog.eventBy);
-        returnString = strConcat(returnString, "|", bytes32ToString(uintToBytes(eventLog.eventDate)));
-        return returnString;
-    }
 
     function getEventLogData(uint256 index) public constant returns(string, string, string, uint) {
         var eventLog = eventLogs[eventLogIds[index]];

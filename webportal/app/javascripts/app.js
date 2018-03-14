@@ -151,7 +151,8 @@ window.App = {
               details.getFileName(i).then(function (fileName) {
                 details.getFileType(fileName).then(function (fileType) {
                   details.getLatestIpfsHash(fileName).then(function (hash) {
-                    html += '<li class="list-group-item">File name: ' + fileName + ' File type: ' + fileType + ' File hash:' + hash + '</li>';
+                    //html += '<li class="list-group-item">File name: ' + fileName + ' File type: ' + fileType + ' File hash:' + hash + '</li>';
+                    html += '<li class="list-group-item">File name: <a target="_blank" href="' + hash + '">' + fileName + '</a> File type: ' + fileType + '</li>';
                     $$('#view-app-list').html(html);
                   }).catch(function (e) {
                     console.log("1 " + e);
@@ -175,15 +176,15 @@ window.App = {
             self.setStatus("Retrieve events for " + daid);
 
             var html2 = "";
-            if (count1 == null) {
+            if (count1 == null || count1.toNumber() <= 0 ) {
               html2 += '<li class="list-group-item">No events</li>';
+              $$('#view-app-events').html(html2);
             } else {
 
               for (var i = 0; i < count1.toNumber(); i++) {
                 var index = i;
                 details.getEventLogData.call(index).then(function (eventString) {
-                  // var eventArray = eventString.split("|");
-                  html2 += '<li class="list-group-item">' + eventString[0] + ': ' + eventString[1] + ' <span class="float-right"> <i class="far fa-clock"></i>' + new Date(Number(eventString[3]) * 1000) + '</span></li>';
+                  html2 += '<li class="list-group-item">' + eventString[0] + ': ' + eventString[1] + ' <span class="float-right"> <i class="far fa-clock"></i>' + new Date(Number(eventString[3]) * 1000).toLocaleString() + '</span></li>';
                   $$('#view-app-events').html(html2);
                 });
               }
@@ -389,7 +390,7 @@ window.App = {
   },
 
   daApprove: function (details, self) {
-    return details.DAApprove(true, { from: account }).then(function () {
+    return details.daApprove(true, { from: account }).then(function () {
       console.log("DAApprove ");
       self.addEventLog(details, "DAApprove", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -412,7 +413,7 @@ window.App = {
     let approvedDate = (new Date(dateApproved)).getTime();
     let dateApprovedInUnixTimestamp = approvedDate / 1000;
 
-    return details.CCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
+    return details.ccLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("CCLodge ");
       self.addEventLog(details, "CCLodge", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -426,7 +427,7 @@ window.App = {
   },
 
   ccApprove: function (details, self) {
-    return details.CCApprove(true, { from: account }).then(function () {
+    return details.ccApprove(true, { from: account }).then(function () {
       console.log("CCApprove ");
       self.addEventLog(details, "CCApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -449,7 +450,7 @@ window.App = {
     let approvedDate = (new Date(dateApproved)).getTime();
     let dateApprovedInUnixTimestamp = approvedDate / 1000;
 
-    return details.SCLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
+    return details.scLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("SCLodge ");
       self.addEventLog(details, "SCLodge", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -463,7 +464,7 @@ window.App = {
   },
 
   scApprove: function (details, self) {
-    return details.SCApprove(true, { from: account }).then(function () {
+    return details.scApprove(true, { from: account }).then(function () {
       console.log("SCApprove ");
       self.addEventLog(details, "SCApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -486,7 +487,7 @@ window.App = {
     let approvedDate = (new Date(dateApproved)).getTime();
     let dateApprovedInUnixTimestamp = approvedDate / 1000;
 
-    return details.PlanApprove(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
+    return details.planApprove(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("PlanApprove ");
       self.addEventLog(details, "PlanApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -500,7 +501,7 @@ window.App = {
   },
 
   planRegister: function (details, self) {
-    return details.PlanRegister(true, { from: account }).then(function () {
+    return details.planRegister(true, { from: account }).then(function () {
       console.log("PlanRegister ");
       self.addEventLog(details, "PlanRegister", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
@@ -542,8 +543,7 @@ window.App = {
   },
 
   setStatus: function (message) {
-    var status = document.getElementById("status");
-    status.innerHTML = message;
+    document.getElementById("status").value = message;
   },
 
   hideDiv: function () {
