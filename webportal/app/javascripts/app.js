@@ -176,7 +176,7 @@ window.App = {
             self.setStatus("Retrieve events for " + daid);
 
             var html2 = "";
-            if (count1 == null || count1.toNumber() <= 0 ) {
+            if (count1 == null || count1.toNumber() <= 0) {
               html2 += '<li class="list-group-item">No events</li>';
               $$('#view-app-events').html(html2);
             } else {
@@ -184,7 +184,7 @@ window.App = {
               for (var i = 0; i < count1.toNumber(); i++) {
                 var index = i;
                 details.getEventLogData.call(index).then(function (eventString) {
-                  html2 += '<li class="list-group-item">' + eventString[0] + ': ' + eventString[1] + ' <span class="float-right"> <i class="far fa-clock"></i>' + new Date(Number(eventString[3]) * 1000).toLocaleString() + '</span></li>';
+                  html2 += '<li class="list-group-item">' + eventString[0] + ': ' + eventString[1] + ': ' + eventString[2] + ' <span class="float-right"> ' + new Date(eventString[4] * 1000).toLocaleDateString() + ' ' + new Date(Number(eventString[4]) * 1000).toLocaleTimeString() + '</span></li>';
                   $$('#view-app-events').html(html2);
                 });
               }
@@ -382,17 +382,53 @@ window.App = {
     });
   },
 
+  addEventLogDA: function () {
+    var self = this;
+    var daid = document.getElementById("daid").value;
+    var daRegister;
 
-  addEventLog: function (details, title, subject, subTitle) {
-    return details.addEventLog(title, subject, account, Date.now() / 1000, { from: account }).then(function (added) {
-      console.log("added log " + title );
+    return localforage.getItem('myStorage').then(function (storage) {
+
+      return DaRegister.deployed().then(function (instance) {
+        daRegister = instance;
+        console.log("Retrieving");
+        self.setStatus("Retrieving Development Application");
+        return daRegister.getDADetailsAddress.call(daid, { from: account });
+      }).then(function (result) {
+        console.log("Retrieved");
+        self.setStatus("Retrieved Development Application");
+        var address = result.valueOf();
+        return DaDetails.at(address).then(function (details) {
+          if (storage) {
+            return self.addAttachments(details, self, true).then(function () {
+            }).catch(function (e) {
+              console.log(e);
+              self.setStatus("Error Adding Event/Attachment");
+            });
+          } else {
+            return self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
+            }).catch(function (e) {
+              console.log(e);
+              self.setStatus("Error Adding Event/Attachment");
+            });
+
+          }
+          self.setStatus("Finished Adding Event - Press Clear");
+        });
+      });
+    });
+  },
+
+  daAddEventLog: function (details, title, subject, description) {
+    return details.addEventLog(title, subject, description, account, Date.now() / 1000, { from: account }).then(function (added) {
+      console.log("added log " + title);
     });
   },
 
   daApprove: function (details, self) {
     return details.daApprove(true, { from: account }).then(function () {
       console.log("DAApprove ");
-      self.addEventLog(details, "DAApprove", "").then(function () {
+      self.daAddEventLog(details, "DAApprove", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("DAApprove Transaction complete!");
         });
@@ -415,7 +451,7 @@ window.App = {
 
     return details.ccLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("CCLodge ");
-      self.addEventLog(details, "CCLodge", "", "").then(function () {
+      self.daAddEventLog(details, "CCLodge", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("CCLodge Transaction complete!");
         });
@@ -429,7 +465,7 @@ window.App = {
   ccApprove: function (details, self) {
     return details.ccApprove(true, { from: account }).then(function () {
       console.log("CCApprove ");
-      self.addEventLog(details, "CCApprove", "", "").then(function () {
+      self.daAddEventLog(details, "CCApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("CCApprove Transaction complete!");
         });
@@ -452,7 +488,7 @@ window.App = {
 
     return details.scLodge(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("SCLodge ");
-      self.addEventLog(details, "SCLodge", "", "").then(function () {
+      self.daAddEventLog(details, "SCLodge", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("SCLodge Transaction complete!");
         });
@@ -466,7 +502,7 @@ window.App = {
   scApprove: function (details, self) {
     return details.scApprove(true, { from: account }).then(function () {
       console.log("SCApprove ");
-      self.addEventLog(details, "SCApprove", "", "").then(function () {
+      self.daAddEventLog(details, "SCApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("SCApprove Transaction complete!");
         });
@@ -489,7 +525,7 @@ window.App = {
 
     return details.planApprove(dateLodgedInUnixTimestamp, description, dateApprovedInUnixTimestamp, { from: account }).then(function () {
       console.log("PlanApprove ");
-      self.addEventLog(details, "PlanApprove", "", "").then(function () {
+      self.daAddEventLog(details, "PlanApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("PlanApprove Transaction complete!");
         });
@@ -503,7 +539,7 @@ window.App = {
   planRegister: function (details, self) {
     return details.planRegister(true, { from: account }).then(function () {
       console.log("PlanRegister ");
-      self.addEventLog(details, "PlanRegister", "", "").then(function () {
+      self.daAddEventLog(details, "PlanRegister", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("PlanRegister Transaction complete!");
         });
@@ -514,7 +550,7 @@ window.App = {
     });
   },
 
-  addAttachments: function (details, self) {
+  addAttachments: function (details, self, withDescription = false) {
     return localforage.getItem('myStorage').then(function (storage) {
 
       if (storage) {
@@ -530,9 +566,17 @@ window.App = {
 
           details.addAttachment(fileName, fileType, account, url, { from: account }).then(function (result5) {
             console.log("addAttachment " + i + ": " + result5);
-            self.addEventLog(details, "Artifact", fileName, fileType).then(function (added) {
-              console.log("added Artifact ");
-            });
+
+            if (withDescription) {
+              self.daAddEventLog(details, "Artifact", fileName, document.getElementById("description").value).then(function (added) {
+                console.log("added Artifact ");
+              });
+            } else {
+              self.daAddEventLog(details, "Artifact", fileName, "").then(function (added) {
+                console.log("added Artifact ");
+              });
+            }
+
           });
         }
         localforage.removeItem('myStorage').then(function (result8) {

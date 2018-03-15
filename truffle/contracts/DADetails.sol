@@ -14,6 +14,7 @@ contract DADetails {
         string eventLogId;
         string eventTitle;
         string eventSubject;
+        string eventDescription;
         string eventBy;
         uint eventDate;
     }
@@ -308,7 +309,7 @@ contract DADetails {
     }
 
 
-    function addEventLog(string logString, string logSubject, string logBy, uint logDate) public returns (bool) {
+    function addEventLog(string logString, string logSubject, string logDescription, string logBy, uint logDate) public returns (bool) {
         var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
         var eventlog = eventLogs[eventLogId];
 
@@ -317,6 +318,7 @@ contract DADetails {
         eventlog.eventLogId = eventLogId;
         eventlog.eventTitle = logString;
         eventlog.eventSubject = logSubject;
+        eventlog.eventDescription = logDescription;
         eventlog.eventBy = logBy;
         eventlog.eventDate = logDate;
         
@@ -352,13 +354,14 @@ contract DADetails {
         return eventLog.eventDate;
     } 
 
-    function getEventLogData(uint256 index) public constant returns(string, string, string, uint) {
+    function getEventLogData(uint256 index) public constant returns(string, string, string, string, uint) {
         var eventLog = eventLogs[eventLogIds[index]];
         var title = eventLog.eventTitle;
         var subject = eventLog.eventSubject;
+        var desc = eventLog.eventDescription;
         var by = eventLog.eventBy;
         var logDate = eventLog.eventDate;
         
-        return (title, subject, by, logDate);
+        return (title, subject, desc, by, logDate);
     }
 }
