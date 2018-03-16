@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 import "./DADetails.sol";
 
 contract DARegister {
@@ -28,10 +28,8 @@ contract DARegister {
         return daIds[index];
     }
 
-    function createDA (string _daId, uint _dateLodged, string _description, string _lga) public {
-        var daDetails = new DADetails(_daId, _dateLodged, _description, _lga);
+    function createDA (string _daId, uint _dateLodged, string _description, string _lga, uint _estimatedCost) public {
+        var daDetails = new DADetails(_daId, _dateLodged, _description, _lga, _estimatedCost);
         registerDA(_daId, daDetails);
-
     }
- 
  }
