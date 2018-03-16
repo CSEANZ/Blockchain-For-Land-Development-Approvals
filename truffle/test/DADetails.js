@@ -1,7 +1,7 @@
 var DADetails = artifacts.require("./DADetails.sol");
 
 contract('DADetails', function (accounts) {
-
+/*
   it("should construct a new instance", async () => {
 
     // arrange
@@ -22,7 +22,8 @@ contract('DADetails', function (accounts) {
     assert.equal(retrivedDescription.valueOf(), description, "description isn't the same");
     assert.equal(retrivedLga.valueOf(), lga, "lga isn't the same");
   });
-/*
+  */
+
   it("should return a list of the geographic files in the contract", async() => {
 
     var daId = "DAID";
@@ -36,10 +37,10 @@ contract('DADetails', function (accounts) {
     var uploadedBy = 0x123;
     var ipfsHash = "Hash1";
 
-    daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
+    await daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
 
 
-    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
+    await daDetails.addAttachment(fileName, fileType, uploadedBy, "hash2");
 
     // add a geographic file
     fileName = "geographicfile.json";
@@ -47,14 +48,14 @@ contract('DADetails', function (accounts) {
     fileType = "geography";
     uploadedBy = 0xacc;
     ipfsHash = "hash3";
-    daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
+    await daDetails.addAttachment(fileName, fileType, uploadedBy, ipfsHash);
 
     // update the geographic file a couple of times
-    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash4");
-    daDetails.addAttachment(fileName, fileType, uploadedBy, "hash5");
+    await daDetails.addAttachment(fileName, fileType, uploadedBy, "hash4");
+    await daDetails.addAttachment(fileName, fileType, uploadedBy, "hash5");
     
     // add a second geographic file
-    daDetails.addAttachment("geofile2.json", "geography", 0xacc, "hash6");
+    await daDetails.addAttachment("geofile2.json", "geography", 0xacc, "hash6");
 
 
     console.log("version count for geographicfile.json");
@@ -91,33 +92,50 @@ contract('DADetails', function (accounts) {
     }
   
   });
-  */
+  
  
   it("should change add event logs and print the logs", async () => {
-    var daId = "DAID";
+    var daId = "daidtest";
     var dateLodged = "123456";
     var description = "Test geographic file types";
     var lga ="BCC";
 
     var daDetails = await DADetails.new(daId, dateLodged, description, lga);
-    daDetails.addEventLog("1111", "abc", "abc", "abcdc");
-    daDetails.addEventLog("2222", "efg", "efg", "efgsfa");
-    daDetails.addEventLog("3333", "efg", "efg", "efgsfa");
-    
-    //console.log("2nd EVENTNUMBER:");
-    //console.log(await daDetails.getEventLogsCount());
-    
+
+    console.log("Adding first event", await daDetails.addEventLog("party1", "desc1", "ipfs1"));
+
+    console.log("adding second event", await daDetails.addEventLog("party2", "desc2", "ipfs2"));
+    /*
+    //var eventlogid3 = await daDetails.addEventLog("party3", "efg", "efgsfa");
+    console.log("EVENTLOG DEBUG:===========");
+    console.log(eventlogid1);
+    console.log(eventlogid2);
+    //console.log(eventlogid3);
+    console.log("END EVENTLOG DEBUG:===========");
+    */
     var eventLogCount = await daDetails.getEventLogsCount();
     console.log("EventLogCount");
     console.log(eventLogCount);
     
     for (let f = 0; f < eventLogCount; f++) {
-      var EventLogId = await daDetails.getEventLogId(f);
-      console.log(EventLogId);
+      var eventlogid = await daDetails.getEventLogId(f);
+      console.log(f, eventlogid)
+      //var eventlogid = "test_0";
+      console.log(eventlogid);
+      // console.log(await daDetails.getEventLogById(eventlogid));
+      console.log("PARTY:");
+      console.log(await daDetails.getEventLogPartyById(eventlogid));
+      console.log("Date:");
+      console.log(await daDetails.getEventLogDateById(eventlogid));
+      console.log("DESCRIPTION:");
+      console.log(await daDetails.getEventLogDescriptionById(eventlogid));
+      console.log("IPFSHASH:");
+      console.log(await daDetails.getEventLogIpfsHashById(eventlogid));
+
     }
     
     });
-
+/*
 
   it("should update and return the contract states from DALodged to PlanRegistered 0 - 7 )", async () => {
     // arrange
@@ -182,7 +200,7 @@ contract('DADetails', function (accounts) {
 
   });
 
-
+*/
 
   // 
 

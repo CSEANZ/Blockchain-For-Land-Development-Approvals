@@ -24,7 +24,8 @@ contract DADetails {
     // ... all the state changes ...
 
 
-    // FIELDS
+
+    // FIELD
     
     string public daid;
     uint public dateLodged;
@@ -308,7 +309,6 @@ contract DADetails {
         return string(babcde);
     }
 
-
     function addEventLog(string logString, string logSubject, string logDescription, string logBy, uint logDate) public returns (bool) {
         var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
         var eventlog = eventLogs[eventLogId];
@@ -327,8 +327,9 @@ contract DADetails {
         return true;
     }
 
-    function getEventLogById(string eventLogId) public view returns(EventLog) {
-        return eventLogs[eventLogId];
+    function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
+        var eventLog = eventLogs[eventLogId];
+        return eventLog.ipfsHash;
     }
 
     function getEventLogId(uint256 index) public view returns(string) {
