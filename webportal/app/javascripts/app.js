@@ -129,22 +129,33 @@ window.App = {
     var events = [];
     var daid = document.getElementById("searchdaid").value;
     var daRegister;
-    self.setStatus("Searching register for " + daid);
+    this.clear();
+    self.setStatus("Locating Development Application register");
     return DaRegister.deployed()
       .then(function (instance) {
         daRegister = instance;
-        self.setStatus("Getting address for " + daid);
+        self.setStatus("Searching register for " + daid);
 
         return daRegister.getDADetailsAddress.call(daid, { from: account });
       })
       .then(function (value) {
         var address = value.valueOf();
-        self.setStatus("Retrieve contract for " + daid);
+
+        if (address.substring(0, 4) == '0x00') {
+          self.setStatus("Register address not found for " + daid);
+          return;
+        }
+
+        self.setStatus("Retrieving " + daid);
 
         return DaDetails.at(address).then(function (details) {
-          self.setStatus("Retrieve attachements for " + daid);
 
           details.getFileNamesCount().then(function (count) {
+
+            if (count.toNumber() > 0) {
+              self.setStatus("Retrieving attachments for " + daid);
+            }
+
             var html = "";
             for (var i = 0; i < count.toNumber(); i++) {
 
@@ -156,121 +167,85 @@ window.App = {
                     $$('#view-app-list').html(html);
                   }).catch(function (e) {
                     console.log("1 " + e);
-                    self.setStatus("Error getting da; see log.");
+                    self.setStatus("Error getting latest ipfs hash");
                   });
                 }).catch(function (e) {
                   console.log("2 " + e);
-                  self.setStatus("Error getting da; see log.");
+                  self.setStatus("Error getting file type");
                 });
               }).catch(function (e) {
                 console.log("3 " + e);
-                self.setStatus("Error getting da; see log.");
+                self.setStatus("Error getting filename");
               });
             };
           }).catch(function (e) {
             console.log("4 " + e);;
-            self.setStatus("Error getting da; see log.");
+            self.setStatus("Error getting attachments count");
           });
 
           details.getEventLogsCount().then(function (count1) {
-            self.setStatus("Retrieve events for " + daid);
 
             var html2 = "";
             if (count1 == null || count1.toNumber() <= 0) {
               html2 += '<li class="list-group-item">No events</li>';
               $$('#view-app-events').html(html2);
             } else {
-
+              self.setStatus("Retrieving events for " + daid);
               for (var i = 0; i < count1.toNumber(); i++) {
                 var index = i;
                 details.getEventLogData.call(index).then(function (eventString) {
                   html2 += '<li class="list-group-item">' + eventString[0] + ': ' + eventString[1] + ': ' + eventString[2] + ' <span class="float-right"> ' + new Date(eventString[4] * 1000).toLocaleDateString() + ' ' + new Date(Number(eventString[4]) * 1000).toLocaleTimeString() + '</span></li>';
                   $$('#view-app-events').html(html2);
+                }).catch(function (e) {
+                  self.setStatus("Error getting event data");
                 });
               }
             }
           }).catch(function (e) {
-            console.log("5 " + e);
-            self.setStatus("Error getting da; see log.");
+            self.setStatus("Error getting events count");
           });
 
           details.daid().then(function (daid) {
             document.getElementById("daid").value = daid;
           }).catch(function (e) {
-            console.log("6 " + e);
-            self.setStatus("Error getting daid; see log.");
+            self.setStatus("Error getting daid");
           });
           details.dateLodged().then(function (dateLodged) {
             document.getElementById("dateLodged").value = new Date(dateLodged * 1000).toLocaleDateString();
           }).catch(function (e) {
-            console.log("7 " + e);
-            self.setStatus("Error getting dateLodged; see log.");
+            self.setStatus("Error getting dateLodged");
           });
           details.description().then(function (desc) {
             document.getElementById("description").value = desc;
           }).catch(function (e) {
-            console.log("8 " + e);
-            self.setStatus("Error getting description; see log.");
+            self.setStatus("Error getting description");
           });
           details.estimatedCost().then(function (ecost) {
             document.getElementById("ecost").value = ecost;
           }).catch(function (e) {
-            console.log("9 " + e);
-            self.setStatus("Error getting ecost; see log.");
+            self.setStatus("Error getting ecost");
           });
 
           details.lga().then(function (lga) {
             document.getElementById("lga").value = lga;
           }).catch(function (e) {
-            console.log("10 " + e);
-            self.setStatus("Error getting lga; see log.");
+            self.setStatus("Error getting lga");
           });
 
-          details.getCurrentState().then(function (state) {
-            var currentState = '';
-            switch (state.toNumber()) {
-              case 0:
-                currentState = 'DA Lodged';
-                break;
-              case 1:
-                currentState = 'DA Approved';
-                break;
-              case 2:
-                currentState = 'CC Lodged';
-                break;
-              case 3:
-                currentState = 'CC Approved';
-                break;
-              case 4:
-                currentState = 'SC Lodged';
-                break;
-              case 5:
-                currentState = 'SC Approved';
-                break;
-              case 6:
-                currentState = 'Plan Approved';
-                break;
-              case 7:
-                currentState = 'Plan Registered';
-                break;
-              default:
-                currentState = 'Unknown';
-            }
-
-            document.getElementById("state").value = currentState;
+          self.getCurrentState(details, self).then(function (state) {
+            var currentState;
+            document.getElementById("state").value = state[1];
+            self.setStatus("Found " + daid);
 
           }).catch(function (e) {
-            console.log("state " + e);
-            self.setStatus("Error getting state; see log.");
+            self.setStatus("Error getting state");
           });
 
         }).catch(function (e) {
-          console.log("11 " + e);
-          self.setStatus("Error contact address; see log.");
+          self.setStatus("Error getting address " + e);
         });
       }).catch(function (e) {
-        console.log("12 " + e);
-        self.setStatus("Error getting daid address; see log.");
+        self.setStatus("Error " + e);
       });
 
     self.setStatus("");
@@ -301,10 +276,15 @@ window.App = {
       self.setStatus("creating Development Application");
       return daRegister.createDA(daid, dateLodgedInUnixTimestamp, description, lga, estimatedCost, { from: account });
     }).then(function (result) {
-      console.log("created createDA");
-      self.setStatus("created Development Application");
+      self.setStatus("Registered Development Application " + daid);
       return daRegister.getDADetailsAddress.call(daid, { from: account });
     }).then(function (result2) {
+
+      if (result2.substring(0, 4) == '0x00') {
+        self.setStatus("Register address not found for " + daid);
+        return;
+      }
+
       console.log("got address: " + result2);
       self.setStatus("retrieving Attachments");
       var address = result2.valueOf();
@@ -322,59 +302,76 @@ window.App = {
   approveDA: function () {
     var self = this;
     var daid = document.getElementById("daid").value;
-    var description = document.getElementById("description").value;
-    var dateLodged = document.getElementById("dateLodged").value;
-    let lodgedDate = (new Date(dateLodged)).getTime();
-    let dateLodgedInUnixTimestamp = lodgedDate / 1000;
-
-    var lga = document.getElementById("lga").value;
     var status = document.getElementById("states").value;
-    var estimatedcost = document.getElementById("ecost").value;
-    var dateApproved = document.getElementById("dateApproved").value;
-    let approvedDate = (new Date(dateApproved)).getTime();
-    let dateApprovedInUnixTimestamp = approvedDate / 1000;
-
     var daRegister;
 
     DaRegister.deployed().then(function (instance) {
       daRegister = instance;
       console.log("Retrieving");
-      self.setStatus("Retrieving Development Application");
+      self.setStatus("Searching register for " + daid);
       return daRegister.getDADetailsAddress.call(daid, { from: account });
     }).then(function (result) {
+
+      if (result.substring(0, 4) == '0x00') {
+        self.setStatus("Register address not found for " + daid);
+        return;
+      }
+
       console.log("Retrieved");
       self.setStatus("Retrieved Development Application");
       var address = result.valueOf();
       return DaDetails.at(address).then(function (details) {
 
-        switch (status) {
-          case "DAApproved":
-            return self.daApprove(details, self);
-            break;
-          case "CCLodged":
-            return self.ccLodge(details, self);
-            break;
-          case "CCApproved":
-            return self.ccApprove(details, self);
-            break;
-          case "SCLodged":
-            return self.scLodge(details, self);
-            break;
-          case "SCApproved":
-            return self.scApprove(details, self);
-            break;
-          case "PlanApprove":
-            return self.planApprove(details, self);
-            break;
-          case "PlanRegistered":
-            return self.planRegister(details, self);
-            break;
-          default:
-            {
-              console.log("Error status not implimented.");
-              self.setStatus("Error status not implimented.");
-            }
-        }
+        return self.getCurrentState(details, self).then(function (state) {
+          var nextState = self.validNextState(state[0], self);
+          var selectedNextState = self.findStateTupleByString(status)[0];
+
+          if (nextState < 0) {
+            self.setStatus("No further state changes available");
+            return;
+          }
+
+          if (selectedNextState !== nextState) 
+          {
+            self.setStatus("Invalid option. Choose another approval or lodgement");
+            return;
+          }
+
+          switch (status) {
+            case "DA Approved":
+              return self.daApprove(details, self);
+              break;
+            case "CC Lodged":
+              return self.ccLodge(details, self);
+              break;
+            case "CC Approved":
+              return self.ccApprove(details, self);
+              break;
+            case "SC Lodged":
+              return self.scLodge(details, self);
+              break;
+            case "SC Approved":
+              return self.scApprove(details, self);
+              break;
+            case "Plan Approve":
+              return self.planApprove(details, self);
+              break;
+            case "Plan Registered":
+              return self.planRegister(details, self);
+              break;
+            default:
+              {
+                console.log("Error status not implimented.");
+                self.setStatus("Error status not implimented.");
+              }
+          }
+
+        }).catch(function (e) {
+          self.setStatus("Error getting state");
+        });
+
+
+        
 
         self.setStatus("Finished creating Development Application - Press Clear");
 
@@ -389,31 +386,39 @@ window.App = {
 
     return localforage.getItem('myStorage').then(function (storage) {
 
+      self.setStatus("Locating Development Application register");
       return DaRegister.deployed().then(function (instance) {
         daRegister = instance;
         console.log("Retrieving");
-        self.setStatus("Retrieving Development Application");
+        self.setStatus("Searching register for " + daid);
         return daRegister.getDADetailsAddress.call(daid, { from: account });
       }).then(function (result) {
+
+        if (result.substring(0, 4) == '0x00') {
+          self.setStatus("Register address not found for " + daid);
+          return;
+        }
+
         console.log("Retrieved");
         self.setStatus("Retrieved Development Application");
         var address = result.valueOf();
         return DaDetails.at(address).then(function (details) {
           if (storage) {
             return self.addAttachments(details, self, true).then(function () {
+              self.setStatus("Finished Adding Event - Press Clear");
             }).catch(function (e) {
               console.log(e);
               self.setStatus("Error Adding Event/Attachment");
             });
           } else {
+            self.setStatus("Adding a manual event for " + daid);
             return self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
+              self.setStatus("Finished Adding Event - Press Clear");
             }).catch(function (e) {
               console.log(e);
               self.setStatus("Error Adding Event/Attachment");
             });
-
           }
-          self.setStatus("Finished Adding Event - Press Clear");
         });
       });
     });
@@ -428,7 +433,7 @@ window.App = {
   daApprove: function (details, self) {
     return details.daApprove(true, { from: account }).then(function () {
       console.log("DAApprove ");
-      self.daAddEventLog(details, "DAApprove", "").then(function () {
+      self.daAddEventLog(details, "DAApprove", "", "").then(function () {
         self.addAttachments(details, self).then(function () {
           self.setStatus("DAApprove Transaction complete!");
         });
@@ -590,10 +595,93 @@ window.App = {
     document.getElementById("status").value = message;
   },
 
+  getCurrentState: function (details, self) {
+
+    return details.getCurrentState().then(function (state) {
+      return self.findStateTupleByNumber(state.toNumber());
+    }).catch(function (e) {
+      self.setStatus("Error getting state");
+    });
+
+  },
+
+  validNextState: function (state, self) {
+    var nextStateTuple = self.findStateTupleByNumber(state);
+    var nextIndex = nextStateTuple[0] + 1;
+
+    if (nextIndex > 7) {
+      return -1;
+    } else {
+      return nextIndex;
+    }
+  },
+
+  findStateTupleByNumber: function (state) {
+
+    switch (state) {
+      case 0:
+        return [state, 'DA Lodged'];
+        break;
+      case 1:
+        return [state, 'DA Approved'];
+        break;
+      case 2:
+        return [state, 'CC Lodged'];
+        break;
+      case 3:
+        return [state, 'CC Approved'];
+        break;
+      case 4:
+        return [state, 'SC Lodged'];
+        break;
+      case 5:
+        return [state, 'SC Approved'];
+        break;
+      case 6:
+        return [state, 'Plan Approved'];
+        break;
+      case 7:
+        return [state, 'Plan Registered'];
+        break;
+      default:
+        return [state, 'Unknown'];
+    }
+  },
+
+  findStateTupleByString: function (state) {
+
+    switch (state) {
+      case 'DA Lodged':
+        return [0, 'DA Lodged'];
+        break;
+      case 'DA Approved':
+        return [1, 'DA Approved'];
+        break;
+      case 'CC Lodged':
+        return [2, 'CC Lodged'];
+        break;
+      case 'CC Approved':
+        return [3, 'CC Approved'];
+        break;
+      case 'SC Lodged':
+        return [4, 'SC Lodged'];
+        break;
+      case 'SC Approved':
+        return [5, 'SC Approved'];
+        break;
+      case 'Plan Approved':
+        return [6, 'Plan Approved'];
+        break;
+      case 'Plan Registered':
+        return [7, 'Plan Registered'];
+        break;
+      default:
+        return [8, 'Unknown'];
+    }
+  },
+
   hideDiv: function () {
     document.getElementById('daid').readOnly = true;
-    document.getElementById('ecost').readOnly = true;
-    document.getElementById('lga').readOnly = true;
     document.getElementById('description').readOnly = true;
     document.getElementById('dateLodged').readOnly = true;
     document.getElementById('dateApproved').readOnly = true;
@@ -602,29 +690,27 @@ window.App = {
   showDiv: function (elem) {
     var self = this;
     switch (elem.value) {
-      case "DALodged":
+      case "DA Lodged":
         document.getElementById('daid').readOnly = false;
-        document.getElementById('ecost').readOnly = false;
-        document.getElementById('lga').readOnly = false;
         document.getElementById('description').readOnly = false;
         document.getElementById('dateLodged').readOnly = false;
         document.getElementById('dateApproved').readOnly = false;
         break;
-      case "CCLodged":
+      case "CC Lodged":
         App.hideDiv();
         document.getElementById('daid').readOnly = false;
         document.getElementById('description').readOnly = false;
         document.getElementById('dateLodged').readOnly = false;
         document.getElementById('dateApproved').readOnly = false;
         break;
-      case "SCLodged":
+      case "SC Lodged":
         App.hideDiv();
         document.getElementById('daid').readOnly = false;
         document.getElementById('description').readOnly = false;
         document.getElementById('dateLodged').readOnly = false;
         document.getElementById('dateApproved').readOnly = false;
         break;
-      case "PlanApprove":
+      case "Plan Approve":
         App.hideDiv();
         document.getElementById('daid').readOnly = false;
         document.getElementById('description').readOnly = false;
@@ -635,8 +721,6 @@ window.App = {
         {
           App.hideDiv();
           document.getElementById('daid').readOnly = false;
-          document.getElementById('ecost').readOnly = true;
-          document.getElementById('lga').readOnly = true;
           document.getElementById('description').readOnly = true;
           document.getElementById('dateLodged').readOnly = true;
           document.getElementById('dateApproved').readOnly = true;
