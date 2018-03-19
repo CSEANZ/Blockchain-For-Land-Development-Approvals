@@ -327,10 +327,10 @@ contract DADetails {
         return true;
     }
 
-    function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
-        var eventLog = eventLogs[eventLogId];
-        return eventLog.ipfsHash;
-    }
+    // function getEventLogIpfsHashById(string eventLogId) public view returns(string) {
+    //     var eventLog = eventLogs[eventLogId];
+    //     return eventLog.ipfsHash;
+    // }
 
     function getEventLogId(uint256 index) public view returns(string) {
         return eventLogIds[index];
