@@ -163,7 +163,19 @@ window.App = {
                 details.getFileType(fileName).then(function (fileType) {
                   details.getLatestIpfsHash(fileName).then(function (hash) {
                     //html += '<li class="list-group-item">File name: ' + fileName + ' File type: ' + fileType + ' File hash:' + hash + '</li>';
-                    html += '<li class="list-group-item">File name: <a target="_blank" href="' + hash + '">' + fileName + '</a> File type: ' + fileType + '</li>';
+                    if (fileType !== 'text/xml') {
+                      html += '<li class="list-group-item">File name: <a target="_blank" href="' 
+                        + hash + '">' 
+                        + fileName + '</a> File type: ' 
+                        + fileType + '</li>';
+                    } else {
+                      // This is XML, it might be land xml... let's assume it is!
+                      html += '<li class="list-group-item">File name: <a target="_blank" href="/ldviewer.html?ipfs=' 
+                        + hash.replace('https://ipfs.io/ipfs/', '')
+                        + '&daid=' + daid + '">' 
+                        + fileName + '</a> File type: ' 
+                        + fileType + '</li>';
+                    }
                     $$('#view-app-list').html(html);
                   }).catch(function (e) {
                     console.log("1 " + e);
@@ -292,7 +304,7 @@ window.App = {
         console.log("got details: " + details);
 
         self.addAttachments(details, self).then(function () {
-          self.setStatus("DALodge Transaction complete!");
+          self.setStatus("Development application successfully lodged.");
         });
         self.setStatus("Finished creating Development Application - Press Clear");
       });
