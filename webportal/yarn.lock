@@ -3232,13 +3232,12 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.2.tgz#01146b36a6218e64e58f3a8d66de5d7fc6f6d051"
 
-land-xml-to-geojson@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/land-xml-to-geojson/-/land-xml-to-geojson-0.0.3.tgz#0a59f8c456466c74de1acc59a1ee93e0615efea1"
+land-xml-to-geojson@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/land-xml-to-geojson/-/land-xml-to-geojson-0.0.5.tgz#8a634dad784b04a4b788055019c625fcced952d7"
   dependencies:
     "@turf/helpers" "^6.0.1"
     proj4 "^2.4.4"
-    xml2js "^0.4.19"
 
 lazy-cache@^1.0.3:
   version "1.0.4"

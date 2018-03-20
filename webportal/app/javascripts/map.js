@@ -184,8 +184,13 @@ function refreshMap(proposedHash, affectedLots) {
                             return feature.properties.state === 'proposed';
                         }
                     }).addTo(map)
-                    map.fitBounds(proposedLot.getBounds());
                     layerControl.addOverlay(proposedLot, 'Proposed Lots')
+                    var bounds = proposedLot.getBounds()
+                    if (bounds.isValid()) {
+                        map.fitBounds(bounds);
+                    } else {
+                        alert("Couldn't zoom to lots...")
+                    }
                 }
             })
         }
