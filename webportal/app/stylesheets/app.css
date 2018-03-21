@@ -152,5 +152,10 @@ h3 {
 .border-bottom { border-bottom: 1px solid #e5e5e5; }
 
 .landchain-title {
-  padding-top: 50px;
+  padding-top: 10px;
+  color: #f7f7f7;
+  font-size: 13em;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
 }

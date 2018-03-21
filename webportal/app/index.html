@@ -13,19 +13,16 @@
   <div class="container">
     <div class="row">
       <main role="main" class="mx-auto" style="width: 1000px;">
-        <p class="display-1 text-center landchain-title">LandChain</p>
+        <p id="text1" class="text1 display-1 text-center landchain-title">LandChain</p>
+        <p class="display-4 text-center">Digital Transformation of the Land Development Process</h1>
         <br>
-        <hr>
-        <p class="display-3 text-center">Digital Transformation of the Land Development Process</h1>
-        <br>
-        <hr>
         <!-- <p class="lead text-center">In order to get started, head over to the following pages to create or view development applications.</p> -->
-        <br>
-        <br>
+
         <div class="col-12 text-center">
           <a href="new-app.html" class="btn btn-primary btn-lg active mx-auto" role="button" aria-pressed="true">Get started</a>
         </div>
         <br>
+        <hr>
         <br>
         <h3>Built in collaboration with</h3>
         <br>
@@ -53,10 +50,28 @@
   <script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
     crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/shine.js/0.2.7/shine.min.js"></script>
   <script type="text/javascript">
     var $$ = jQuery.noConflict();
     var fileName = "";
     var fileType = "";
+    var config_text1 = new shinejs.Config({
+            numSteps: 5,
+            opacity: 0.2,
+            offset: 0.2,
+            blur: 40,
+            shadowRGB: new shinejs.Color(0,0,0)
+      });         
+
+      var shine_text1 = new Shine(document.getElementById('text1'), config_text1);
+
+      function handleMouseMove_text1(event) {
+        shine_text1.light.position.x = event.clientX;
+        shine_text1.light.position.y = event.clientY;
+        shine_text1.draw();
+      } 
+      
+      window.addEventListener('mousemove', handleMouseMove_text1, false);
   </script>
 
 </body>
