@@ -426,21 +426,23 @@ window.App = {
         return DaDetails.at(address).then(function (details) {
           // First add the event
           self.setStatus("Adding an event for " + daid);
-          return self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
-            self.setStatus("Finished Adding Event - Press Clear");
+          self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
+            // And then if we need to, add the attachment
+            if (storage) {
+                return self.addAttachments(details, self, true).then(function () {
+                self.setStatus("Finished Adding Event - Press Clear");
+              }).catch(function (e) {
+                console.log(e);
+                self.setStatus("Error Adding Event/Attachment");
+              });
+            } else {
+              self.setStatus("Finished Adding Event - Press Clear");
+              return;
+            }
           }).catch(function (e) {
             console.log(e);
             self.setStatus("Error Adding Event/Attachment");
           });
-          // And then if we need to, add the attachment
-          if (storage) {
-            return self.addAttachments(details, self, true).then(function () {
-              self.setStatus("Finished Adding Event - Press Clear");
-            }).catch(function (e) {
-              console.log(e);
-              self.setStatus("Error Adding Event/Attachment");
-            });
-          }
         });
       });
     });
