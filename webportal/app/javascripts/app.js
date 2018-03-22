@@ -47,6 +47,7 @@ window.App = {
               fileType: fileType,
               timestamp: Math.floor(Date.now() / 1000)
             };
+            console.log(obj)
             let temp = [];
             temp.push(obj);
             localforage.setItem('myStorage', temp).then(function (value) {
@@ -99,6 +100,9 @@ window.App = {
   },
 
   start: function () {
+    // Clear out local storage.
+    localforage.clear();
+
     var self = this;
 
     this.attachEvents();
@@ -151,6 +155,7 @@ window.App = {
         return DaDetails.at(address).then(function (details) {
 
           details.getFileNamesCount().then(function (count) {
+            console.log("Found ", count.toNumber(), " files")
 
             if (count.toNumber() > 0) {
               self.setStatus("Retrieving attachments for " + daid);
@@ -158,10 +163,14 @@ window.App = {
 
             var html = "";
             for (var i = 0; i < count.toNumber(); i++) {
+              console.log("Getting file ", i)
 
               details.getFileName(i).then(function (fileName) {
+                console.log("File name was: ", fileName)
                 details.getFileType(fileName).then(function (fileType) {
+                  console.log("File type was: ", fileType)
                   details.getLatestIpfsHash(fileName).then(function (hash) {
+
                     //html += '<li class="list-group-item">File name: ' + fileName + ' File type: ' + fileType + ' File hash:' + hash + '</li>';
                     if (fileType !== 'text/xml') {
                       html += '<li class="list-group-item">File name: <a target="_blank" href="' 
@@ -415,16 +424,17 @@ window.App = {
         self.setStatus("Retrieved Development Application");
         var address = result.valueOf();
         return DaDetails.at(address).then(function (details) {
+          // First add the event
+          self.setStatus("Adding an event for " + daid);
+          return self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
+            self.setStatus("Finished Adding Event - Press Clear");
+          }).catch(function (e) {
+            console.log(e);
+            self.setStatus("Error Adding Event/Attachment");
+          });
+          // And then if we need to, add the attachment
           if (storage) {
             return self.addAttachments(details, self, true).then(function () {
-              self.setStatus("Finished Adding Event - Press Clear");
-            }).catch(function (e) {
-              console.log(e);
-              self.setStatus("Error Adding Event/Attachment");
-            });
-          } else {
-            self.setStatus("Adding a manual event for " + daid);
-            return self.daAddEventLog(details, "Manual Event", "", document.getElementById("description").value).then(function () {
               self.setStatus("Finished Adding Event - Press Clear");
             }).catch(function (e) {
               console.log(e);
@@ -577,28 +587,28 @@ window.App = {
         });
 
         for (var i = 0; i < storage.length; i++) {
-          var filename = storage[i].fileName;
+          var fileName = storage[i].fileName;
           var fileType = storage[i].fileType;
           var url = storage[i].url;
 
+          console.log("Attaching the file: ", fileName, fileType, url)
+
           details.addAttachment(fileName, fileType, account, url, { from: account }).then(function (result5) {
-            console.log("addAttachment " + i + ": " + result5);
-
-            if (withDescription) {
-              self.daAddEventLog(details, "Artifact", fileName, document.getElementById("description").value).then(function (added) {
-                console.log("added Artifact ");
-              });
-            } else {
-              self.daAddEventLog(details, "Artifact", fileName, "").then(function (added) {
-                console.log("added Artifact ");
-              });
-            }
-
+            console.log("addAttachment working, result follows");
+            console.log(result5)
+            // if (withDescription) {
+            //   self.daAddEventLog(details, "Artifact", fileName, document.getElementById("description").value).then(function (added) {
+            //     console.log("added Artifact ");
+            //   });
+            // } else {
+            //   self.daAddEventLog(details, "Artifact", fileName, "").then(function (added) {
+            //     console.log("added Artifact ");
+            //   });
+            // }
           });
         }
-        localforage.removeItem('myStorage').then(function (result8) {
-          console.log("clear local storage");
-        });
+        // Clear out the storage after uploading items
+        localforage.clear()
       }
     });
   },

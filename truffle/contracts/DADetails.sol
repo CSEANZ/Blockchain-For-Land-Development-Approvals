@@ -65,7 +65,7 @@ contract DADetails {
     // Plan registered certificate description
     string public planRegisteredDescription;
 
-    string[] public fileNames; 
+    string[] public fileNames;
     mapping (string => FileAttachment) attachments;
 
     string[] public eventLogIds;
