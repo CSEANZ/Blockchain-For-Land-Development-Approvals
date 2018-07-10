@@ -19,6 +19,7 @@ module.exports = {
       { from: './app/new-app.html', to: "new-app.html" },
       { from: './app/view-app.html', to: "view-app.html" },
       { from: './app/approve-app.html', to: "approve-app.html" },
+      { from: './app/add-event.html', to: "add-event.html" },
       { from: './app/ldviewer.html', to: "ldviewer.html" }
     ])
   ],

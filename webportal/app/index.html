@@ -10,65 +10,27 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Development Application</a>
-    <input class="form-control form-control-dark w-100" type="text" aria-label="Search">
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap">
-        <a class="nav-link" href="#"></a>
-      </li>
-    </ul>
-  </nav>
-
-  <div class="container-fluid">
+  <div class="container">
     <div class="row">
-      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-        <div class="sidebar-sticky">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link active" href="index.html">
-                Forms
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-app.html">
-                New
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="view-app.html">
-                View
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="approve-app.html">
-                Approve
-              </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-        <div class="alert alert-info" role="alert">
-          <h1>Welcome to the Blockchain for Land Development</h1>
-          <br>
-          In order to get started, head over to the following pages to create or view development applications.
-          <br>
-          <br>
-          <a href="new-app.html" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Create an application</a>
-          <a href="view-app.html" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">View an application</a>
+      <main role="main" class="mx-auto" style="width: 1000px;">
+        <p id="text1" class="text1 display-1 text-center landchain-title">LandChain</p>
+        <p class="display-4 text-center">Digital Transformation of the Land Development Process</h1>
+        <br>
+        <!-- <p class="lead text-center">In order to get started, head over to the following pages to create or view development applications.</p> -->
+
+        <div class="col-12 text-center">
+          <a href="new-app.html" class="btn btn-primary btn-lg active mx-auto" role="button" aria-pressed="true">Get started</a>
         </div>
         <br>
+        <hr>
         <br>
-        <h2>Partners</h2>
+        <h3>Built in collaboration with</h3>
         <br>
         <image src="images/spatial-services.png" width="200"></image>
         <image src="images/business-aspect.jpg" width="200"></image>
         <image src="images/microsoft.jpg" width="200"></image>
         <image src="images/crc-si.jpg" width="200"></image>
         <image src="images/planning-environment.png" width="200"></image>
-        <br>
         <image src="images/sydney-water.jpg" width="200"></image>
         <image src="images/mirvac.png" width="200"></image>
         <image src="images/blacktown.png" width="200"></image>
@@ -88,10 +50,28 @@
   <script src="https://unpkg.com/ipfs-api@9.0.0/dist/index.js" integrity="sha384-5bXRcW9kyxxnSMbOoHzraqa7Z0PQWIao+cgeg327zit1hz5LZCEbIMx/LWKPReuB"
     crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.7/localforage.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/shine.js/0.2.7/shine.min.js"></script>
   <script type="text/javascript">
     var $$ = jQuery.noConflict();
     var fileName = "";
     var fileType = "";
+    var config_text1 = new shinejs.Config({
+            numSteps: 5,
+            opacity: 0.2,
+            offset: 0.2,
+            blur: 40,
+            shadowRGB: new shinejs.Color(0,0,0)
+      });         
+
+      var shine_text1 = new Shine(document.getElementById('text1'), config_text1);
+
+      function handleMouseMove_text1(event) {
+        shine_text1.light.position.x = event.clientX;
+        shine_text1.light.position.y = event.clientY;
+        shine_text1.draw();
+      } 
+      
+      window.addEventListener('mousemove', handleMouseMove_text1, false);
   </script>
 
 </body>

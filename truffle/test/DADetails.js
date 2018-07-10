@@ -149,7 +149,7 @@ contract('DADetails', function (accounts) {
     // act
     var daDetails = await DADetails.new(daid, dateLodged, description, lga);
 
-    daDetails.DALodge(accounts[1], daid, dateLodged, description, lga, estimatedcost, dateApproved);
+    daDetails.daLodge(daid, dateLodged, description, lga, estimatedcost, dateApproved);
     var currentState = await daDetails.getCurrentState();
     console.log("---------------------------");
     console.log("current state for DALodged ", currentState.toString());
