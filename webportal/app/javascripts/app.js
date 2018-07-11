@@ -24,7 +24,8 @@ window.App = {
     var that = this;
     var reader = new FileReader();
     reader.onloadend = function () {
-      const ipfs = window.IpfsApi('ipfs.landchain.com.au', 5001) // Connect to IPFS
+      // ** CHANGE THIS TO YOUR IPFS NODE ADDRESS IF NOT LOCALHOST **
+      const ipfs = window.IpfsApi('localhost', 5001) // Connect to IPFS
       const buf = buffer.Buffer(reader.result) // Convert data into buffer
       ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
         if (err) {
