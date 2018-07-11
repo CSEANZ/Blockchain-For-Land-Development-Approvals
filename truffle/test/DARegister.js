@@ -13,6 +13,7 @@ contract('DARegister', function (accounts) {
         var daDateLodged = "12345678";
         var daDescription = "Created description";
         var daLga = "Test LGA";
+        var estimatedCost = "4321"
 
         // act
         // create a daRegister
@@ -23,7 +24,7 @@ contract('DARegister', function (accounts) {
         await daRegister.registerDA(daId2, daId2Address);
 
         // call the Create method
-        var created = await daRegister.createDA(daId4, daDateLodged, daDescription, daLga);
+        var created = await daRegister.createDA(daId4, daDateLodged, daDescription, daLga, estimatedCost);
 
 
         // retrieve some details
@@ -39,7 +40,7 @@ contract('DARegister', function (accounts) {
         var retrievedAddress4 = await daRegister.getDADetailsAddress(daId4);
 
         // assert
-        console.log("There are ", registerCount, " DAs registered");
+        // console.log("There are ", registerCount, " DAs registered");
         assert.equal(registerCount, 3, "There should be 3 DAs registered");
         assert.equal(retrievedIds.find(r => r == daId1), daId1, "DAID1 should be in the regisered list");
         assert.equal(retrievedIds.find(r => r == daId2), daId2, "DAID2 should be in the regisered list");
