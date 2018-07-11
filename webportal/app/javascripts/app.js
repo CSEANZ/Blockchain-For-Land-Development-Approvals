@@ -6,6 +6,8 @@ import "../stylesheets/main.css";
 import { default as Web3 } from 'web3';
 import { default as contract } from 'truffle-contract'
 
+import {default as buffer} from './buffer.js'
+
 // Import our contract artifacts and turn them into usable abstractions.
 import daRegister_artifacts from '../../../truffle/build/contracts/DARegister.json'
 import daDetails_artifacts from '../../../truffle/build/contracts/DADetails.json'
