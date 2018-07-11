@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
 contract DADetails {
 
@@ -80,7 +80,7 @@ contract DADetails {
 
 
     // CONSTRUCTOR
-    function DADetails (string _daId, uint _dateLodged, string _description, string _lga, uint _estimatedCost) public {
+    constructor (string _daId, uint _dateLodged, string _description, string _lga, uint _estimatedCost) public {
         applicant = msg.sender;
         daid = _daId;
         dateLodged = _dateLodged;
@@ -92,14 +92,14 @@ contract DADetails {
 
     // METHODS
     // function change the state
-	function changeState(ContractStates newState) public {
-		State = newState;
-		StateChanged(newState);
-	}
+    function changeState(ContractStates newState) public {
+        State = newState;
+        emit StateChanged(newState);
+    }
 
    // function returns the current state 
     function getCurrentState() public view returns (ContractStates) {
-       return State;
+        return State;
     }
 
 
@@ -118,14 +118,14 @@ contract DADetails {
 
      // function changes the state to DA Approved if current contract state is DA Lodged
     function daApprove(bool daApproveResult) public returns (bool) {
-		require(State == ContractStates.DALodged);
-		
-		if (daApproveResult) {
-			changeState(ContractStates.DAApproved);
-		} 
+        require(State == ContractStates.DALodged);
 
-    return true;
-	}
+        if (daApproveResult) {
+            changeState(ContractStates.DAApproved);
+        } 
+
+        return true;
+    }
 
      // function changes the state to construction (CC) lodged if current contract state is DAApproved approved
     function ccLodge (uint _ccDateLodged, string _ccDescription, uint _ccDateApproved) public {      
@@ -141,18 +141,18 @@ contract DADetails {
 
     // function changes the state to construction (CC) approved if current contract state is construction (CC) lodged
     function ccApprove(bool ccApproveResult) public returns (bool) {
-		require(State == ContractStates.CCLodged);
-		
-		if (ccApproveResult) {
-			changeState(ContractStates.CCApproved);
+        require(State == ContractStates.CCLodged);
+
+        if (ccApproveResult) {
+            changeState(ContractStates.CCApproved);
 		} 
 
-	return true;
-	}
+        return true;
+    }
 
 
     // function changes the state to sub division (SC) lodged if current contract state is construction (CC) approved
-     function scLodge (uint _sdcDateLodged, string _sdcDescription, uint _sdcDateApproved) public {
+    function scLodge (uint _sdcDateLodged, string _sdcDescription, uint _sdcDateApproved) public {
         require(State == ContractStates.CCApproved);
         
         sdcDateLodged = _sdcDateLodged;
@@ -162,20 +162,20 @@ contract DADetails {
         changeState(ContractStates.SCLodged);
     }
 
-   // function changes the state to sub division (SC) approved if current contract state is sub division (SC) lodged
+    // function changes the state to sub division (SC) approved if current contract state is sub division (SC) lodged
     function scApprove(bool scApproveResult) public returns (bool) {
-		require(State == ContractStates.SCLodged);
-		
-		if (scApproveResult) {
-			changeState(ContractStates.SCApproved);
-		} 
+        require(State == ContractStates.SCLodged);
 
-	    return true;
-	}
+        if (scApproveResult) {
+            changeState(ContractStates.SCApproved);
+        }
+
+        return true;
+    }
 
 
     // function changes the state to Plan lodged if current contract state is sub divison approved
-     function planApprove (uint _planApproveDateLodged, string _planRegisteredDescription, uint _planRegisteredDateApproved) public {
+    function planApprove (uint _planApproveDateLodged, string _planRegisteredDescription, uint _planRegisteredDateApproved) public {
         require(State == ContractStates.SCApproved);
 
         planApproveDateLodged = _planApproveDateLodged;
@@ -186,14 +186,14 @@ contract DADetails {
     }
 
     // function changes the state to PlanRegistered if current contract state is Plan Lodged
-     function planRegister(bool planRegisteredResult) public returns (bool) {
-		require(State == ContractStates.PlanLodged);
-		
-		if (planRegisteredResult) {
-			changeState(ContractStates.PlanRegistered);
-		} 
-	    return true;
-	}
+    function planRegister(bool planRegisteredResult) public returns (bool) {
+        require(State == ContractStates.PlanLodged);
+
+        if (planRegisteredResult) {
+            changeState(ContractStates.PlanRegistered);
+        } 
+        return true;
+    }
 
 
     // get the hash of all the geographic files associated with this contract
@@ -203,7 +203,7 @@ contract DADetails {
 
     function addAttachment(string fileName, string fileType, address uploadedBy, string ipfsHash) public returns(bool) {
         // look for the file name in the contract already
-        var attachment = attachments[fileName];
+        FileAttachment storage attachment = attachments[fileName];
         // if it's there, simply add the ipfs hash to the array of hashes, update the filetype and uploadedby
         // if it's not, we get a blank one back, so this will fill it in.
         if (attachment.uploadedBy == 0x00) {
@@ -225,12 +225,12 @@ contract DADetails {
     }
 
     function getFileType(string fileName) public view returns(string) {
-        var attachment = attachments[fileName];
+        FileAttachment memory attachment = attachments[fileName];
         return attachment.fileType;
     } 
 
     function getLatestIpfsHash(string fileName) public view returns(string) {
-        var attachment = attachments[fileName];
+        FileAttachment memory attachment = attachments[fileName];
         if (attachment.uploadedBy == 0x00) {
             return "";
         } else {
@@ -239,7 +239,7 @@ contract DADetails {
     }
 
     function getAttachmentVersionCount(string fileName) public view returns(uint256) {
-        var attachment = attachments[fileName];
+        FileAttachment memory attachment = attachments[fileName];
         if (attachment.uploadedBy == 0x00) {
             return 0;
         } else {
@@ -248,7 +248,7 @@ contract DADetails {
     }
 
     function getAttachmentVersionByIndex(string fileName, uint256 index) public view returns(string) {
-        var attachment = attachments[fileName];
+        FileAttachment memory attachment = attachments[fileName];
         if (attachment.uploadedBy == 0x00) {
             return "";
         } else if (attachment.ipfsHash.length < index + 1) {
@@ -259,7 +259,7 @@ contract DADetails {
     }
 
     function getUploadedBy(string fileName) public view returns(address) {
-        var attachment = attachments[fileName];
+        FileAttachment memory attachment = attachments[fileName];
         return attachment.uploadedBy;
     }
 
@@ -310,8 +310,8 @@ contract DADetails {
     }
 
     function addEventLog(string logString, string logSubject, string logDescription, string logBy, uint logDate) public returns (bool) {
-        var eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
-        var eventlog = eventLogs[eventLogId];
+        string memory eventLogId = strConcat(daid, "_", bytes32ToString(uintToBytes(eventLogIds.length)));
+        DADetails.EventLog storage eventlog = eventLogs[eventLogId];
 
         eventLogIds.push(eventLogId);
 
@@ -341,27 +341,27 @@ contract DADetails {
     }
 
     function getEventTitle(uint256 index) public view returns(string) {
-        var eventLog = eventLogs[eventLogIds[index]];
+        DADetails.EventLog memory eventLog = eventLogs[eventLogIds[index]];
         return eventLog.eventTitle;
     } 
 
     function getEventSubject(uint256 index) public view returns(string) {
-        var eventLog = eventLogs[eventLogIds[index]];
+        DADetails.EventLog memory eventLog = eventLogs[eventLogIds[index]];
         return eventLog.eventSubject;
     } 
 
     function getEventDate(uint256 index) public view returns(uint) {
-        var eventLog = eventLogs[eventLogIds[index]];
+        DADetails.EventLog memory eventLog = eventLogs[eventLogIds[index]];
         return eventLog.eventDate;
     } 
 
-    function getEventLogData(uint256 index) public constant returns(string, string, string, string, uint) {
-        var eventLog = eventLogs[eventLogIds[index]];
-        var title = eventLog.eventTitle;
-        var subject = eventLog.eventSubject;
-        var desc = eventLog.eventDescription;
-        var by = eventLog.eventBy;
-        var logDate = eventLog.eventDate;
+    function getEventLogData(uint256 index) public view returns(string, string, string, string, uint) {
+        EventLog memory eventLog = eventLogs[eventLogIds[index]];
+        string memory title = eventLog.eventTitle;
+        string memory subject = eventLog.eventSubject;
+        string memory desc = eventLog.eventDescription;
+        string memory by = eventLog.eventBy;
+        uint logDate = eventLog.eventDate;
         
         return (title, subject, desc, by, logDate);
     }
